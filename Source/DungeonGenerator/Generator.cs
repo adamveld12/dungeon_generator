@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -24,7 +25,7 @@ namespace DungeonGenerator
         public Generator(int width, int height)
         {
             _dungeon = new Dungeon(width, height);
-            _dungeonBuilders = Enumerable.Repeat(0, 7)
+            _dungeonBuilders = Enumerable.Repeat(0, (int)Math.Log(width * height, 3) + 1)
                                          .Select(x => new Builder(_random.Next(1, width - 2), _random.Next(1, height - 2)))
                                          .ToList();
 

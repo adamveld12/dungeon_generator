@@ -24,7 +24,7 @@ namespace DungeonGenerator
         }
 
         public Builder(int x, int y) 
-            : this(x, y, new Gene(0, 15, 3))
+            : this(x, y, new Gene(0, 15, 4))
         {
             
         }
@@ -49,8 +49,8 @@ namespace DungeonGenerator
             if (chance <= 5)
                 _stepsRemaining++;
 
-            if (chance <= 18)
-                if(stepSeed%7 > 3)
+            if (chance <= 8)
+                if(stepSeed % 7 > 3)
                   TurnLeft();
                 else
                   TurnRight();
@@ -77,25 +77,26 @@ namespace DungeonGenerator
 
         protected void Walk(Dungeon dungeon)
         {
-            if (CanWalk(dungeon))
+            while (!CanWalk(dungeon))
+                TurnLeft();
+
+            switch (_direction)
             {
-              switch (_direction)
-              {
-                  case Direction.N:
-                      _y ++;
-                      break;
-                  case Direction.E:
-                      _x ++;
-                      break;
-                  case Direction.W:
-                      _x--;
-                      break;
-                  case Direction.S:
-                      _y--;
-                      break;
-                  default:
-                      throw new ArgumentOutOfRangeException();
-              }
+                case Direction.N:
+                    _y ++;
+                    break;
+                case Direction.E:
+                    _x ++;
+                    break;
+                case Direction.W:
+                    _x--;
+                    break;
+                case Direction.S:
+                    _y--;
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
 
@@ -121,15 +122,17 @@ namespace DungeonGenerator
 
         public Builder[] Reproduce(int geneSeed)
         {
-            var reproductionCount = geneSeed % 3;
+            var chance = geneSeed%100;
+
+            var reproductionCount = chance <= 75 && _gene.MaxOffspring > 0 ? geneSeed % _gene.MaxOffspring + 1: 0; 
             return Enumerable.Repeat(0, reproductionCount)
                              .Select(x => _gene.Mutate())
                              .Select((gene, index) => {
                                  var builder = new Builder(_x, _y, gene);
                                  builder.SetDirection(_direction);
-                                 if(index % 2== 0)
+                                 if(index % 3 == 0)
                                    builder.TurnLeft();
-                                 else
+                                 else if(index %3 == 1)
                                      builder.TurnRight();
                                  return builder;
                              })
