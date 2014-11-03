@@ -13,7 +13,7 @@ namespace DungeonGenerator
             {
                 var dungeon = Generator.Generate();
                 Render(dungeon);
-            } while ( (char)Console.Read() != 'q' );
+            } while ( Console.ReadLine() != "q" );
         }
 
         public static void Render(Dungeon dungeon)
