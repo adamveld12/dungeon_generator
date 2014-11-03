@@ -8,23 +8,11 @@ namespace DungeonGenerator
         
         public static Dungeon Generate()
         {
-            var dungeon = new Dungeon(128, 24);
+            var gen = new Generator(128, 24);
 
-            for (var x = 0; x < dungeon.Width; x++)
-            {
-                for (var y = 0; y < dungeon.Height; y++)
-                {
-                    TileType tileType;
+            do { } while (gen.Step());
 
-                    if (x == 0 || y == 0 || y == dungeon.Height - 1 || x == dungeon.Width - 1) 
-                        tileType = TileType.Wall;
-                    else
-                        tileType = TileType.Floor;
-
-                    dungeon[x, y] = tileType;
-                }
-            }
-            return dungeon;
+            return gen.Dungeon;
         }
 
         private readonly MersennePrimeRandom _random = new MersennePrimeRandom(34u);
@@ -36,30 +24,39 @@ namespace DungeonGenerator
         public Generator(int width, int height)
         {
             _dungeon = new Dungeon(width, height);
-            _dungeonBuilders = Enumerable.Repeat(0, 1)
+            _dungeonBuilders = Enumerable.Repeat(0, 7)
                                          .Select(x => new Builder(_random.Next(1, width - 2), _random.Next(1, height - 2)))
                                          .ToList();
+
+            for (var x = 0; x < width; x++)
+                for (var y = 0; y < height; y++)
+                    _dungeon[x, y] =  TileType.Wall;;
         }
 
-        public bool Step()
+        private bool Step()
         {
             if (_dungeonBuilders.Count > 0)
             {
                 stepCount++;
-                _dungeonBuilders = _dungeonBuilders.Select(builder => {
-                                                       builder.Step(_dungeon);
+                _dungeonBuilders = _dungeonBuilders.AsParallel()
+                                                   .Select(builder => {
+                                                       builder.Step(Dungeon, stepCount, _random.Next());
                                                        return builder;
                                                    })
                                                    .SelectMany(builder => {
                                                        if (builder.IsDead)
                                                            return builder.Reproduce(_random.Next());
                                                        return new[] {builder};
-                                                   })
-                                                   .Where(x => !x.IsDead)
+                                                   }).Where(x => !x.IsDead)
                                                    .ToList();
             }
 
             return _dungeonBuilders.Count > 0;
+        }
+
+        public Dungeon Dungeon
+        {
+            get { return _dungeon; }
         }
     }
 }
