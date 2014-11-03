@@ -12,6 +12,7 @@ namespace DungeonGenerator
 
         public Builder(int x, int y, Gene gene)
         {
+            _direction = Direction.N;
             _x = x;
             _y = y;
             _gene = gene;
@@ -52,10 +53,5 @@ namespace DungeonGenerator
             get { return _stepsRemaining <= 0; }
         }
 
-    }
-
-    public enum Direction : byte
-    {
-        N = 0x00
     }
 }

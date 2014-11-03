@@ -5,6 +5,7 @@ namespace DungeonGenerator
 {
     public class Generator
     {
+        
         public static Dungeon Generate()
         {
             var dungeon = new Dungeon(128, 24);
@@ -30,6 +31,8 @@ namespace DungeonGenerator
         private readonly Dungeon _dungeon;
         private List<Builder> _dungeonBuilders;
 
+        private int stepCount = 0;
+
         public Generator(int width, int height)
         {
             _dungeon = new Dungeon(width, height);
@@ -40,6 +43,9 @@ namespace DungeonGenerator
 
         public bool Step()
         {
+            if (_dungeonBuilders.Count > 0)
+            {
+                stepCount++;
                 _dungeonBuilders = _dungeonBuilders.Select(builder => {
                                                        builder.Step(_dungeon);
                                                        return builder;
@@ -51,6 +57,7 @@ namespace DungeonGenerator
                                                    })
                                                    .Where(x => !x.IsDead)
                                                    .ToList();
+            }
 
             return _dungeonBuilders.Count > 0;
         }
