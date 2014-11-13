@@ -1,4 +1,4 @@
-namespace DungeonGenerator
+namespace DungeonGenerator.Navigation
 {
     public enum Direction : byte
     {

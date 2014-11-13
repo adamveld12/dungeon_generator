@@ -1,26 +1,43 @@
 ﻿using System;
+using System.Linq;
+using System.Threading;
 
 namespace DungeonGenerator
 {
     public class Program
     {
+        private const int WIDTH = 128;
+        private const int HEIGHT = 24;
+
         static void Main(string[] args)
         {
             Console.Title = "Dungeon generator";
             Console.CursorVisible = false;
+            Console.SetWindowSize(WIDTH + 7, HEIGHT + 17);
 
-            do
+            var gen = new Generator(WIDTH, HEIGHT);
+            Render(gen);
+            while (true)
             {
-                var dungeon = Generator.Generate();
-                Render(dungeon);
-            } while ( Console.ReadLine() != "q" );
+                Render(gen);
+                Thread.Sleep(100);
+                if (!gen.Step())
+                {
+                    Console.WriteLine("\nSim over, press enter to run a new sim.");
+                    Console.ReadLine();
+                    Console.Clear();
+                    gen = new Generator(128, 24);
+                    Render(gen);
+                }
+            }
+            
         }
 
-        public static void Render(Dungeon dungeon)
+        public static void Render(Generator generator)
         {
+            var dungeon = generator.Dungeon;
             var width = dungeon.Width;
             var height = dungeon.Height;
-            Console.SetWindowSize(width + 7, height + 6);
 
             for (int x = 0; x < width; x++)
             {
@@ -45,12 +62,16 @@ namespace DungeonGenerator
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
-
                     Console.Write(output);
                 }
             }
 
-            Console.WriteLine("\n");
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine(Enumerable.Repeat('\u2500', width + 7).ToArray());
+            Console.WriteLine("Builder Count: {0}\tMax Generation: {1}", generator.BuilderCount, generator.Generation);
+            Console.WriteLine();
+            Console.WriteLine(Enumerable.Repeat('\u2500', width + 7).ToArray());
         }
     }
 }

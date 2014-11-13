@@ -33,27 +33,21 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Builder.cs" />
-    <Compile Include="Direction.cs" />
-    <Compile Include="Dungeon.cs" />
-    <Compile Include="Gene.cs" />
+    <Compile Include="Builders\Builder.cs" />
+    <Compile Include="Builders\CorridorBuilder.cs" />
+    <Compile Include="Builders\RoomBuilder.cs" />
+    <Compile Include="Navigation\Direction.cs" />
+    <Compile Include="Navigation\Dungeon.cs" />
+    <Compile Include="Builders\Genetics\Gene.cs" />
     <Compile Include="Generator.cs" />
-    <Compile Include="ITileMap.cs" />
+    <Compile Include="Navigation\ITileMap.cs" />
     <Compile Include="MersennePrimeRandom.cs" />
+    <Compile Include="Navigation\Location.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TileType.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
+    <Compile Include="Navigation\TileType.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
