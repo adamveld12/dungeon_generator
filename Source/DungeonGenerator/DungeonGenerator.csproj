@@ -35,12 +35,9 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Builders\Builder.cs" />
-    <Compile Include="Builders\CorridorBuilder.cs" />
-    <Compile Include="Builders\RoomBuilder.cs" />
+    <Compile Include="Builder.cs" />
     <Compile Include="Navigation\Direction.cs" />
     <Compile Include="Navigation\Dungeon.cs" />
-    <Compile Include="Builders\Genetics\Gene.cs" />
     <Compile Include="Generator.cs" />
     <Compile Include="Navigation\ITileMap.cs" />
     <Compile Include="MersennePrimeRandom.cs" />

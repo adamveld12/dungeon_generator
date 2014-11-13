@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
+using DungeonGenerator.Navigation;
 
 namespace DungeonGenerator
 {
@@ -23,11 +24,11 @@ namespace DungeonGenerator
                 Thread.Sleep(100);
                 if (!gen.Step())
                 {
+                    Render(gen);
                     Console.WriteLine("\nSim over, press enter to run a new sim.");
                     Console.ReadLine();
                     Console.Clear();
                     gen = new Generator(128, 24);
-                    Render(gen);
                 }
             }
             
@@ -69,7 +70,8 @@ namespace DungeonGenerator
             Console.WriteLine();
             Console.WriteLine();
             Console.WriteLine(Enumerable.Repeat('\u2500', width + 7).ToArray());
-            Console.WriteLine("Builder Count: {0}\tMax Generation: {1}", generator.BuilderCount, generator.Generation);
+//            Console.WriteLine("Builder Count: {0}\tMax Generation: {1}", generator.BuilderCount, generator.Generation);
+            Console.WriteLine("Width: {0} Height: {1}", dungeon.Width, dungeon.Height);
             Console.WriteLine();
             Console.WriteLine(Enumerable.Repeat('\u2500', width + 7).ToArray());
         }

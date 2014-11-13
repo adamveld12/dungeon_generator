@@ -1,9 +1,9 @@
-﻿namespace DungeonGenerator
+﻿namespace DungeonGenerator.Navigation
 {
     public enum TileType : byte
     {
-        Air = 0x00,
-        Wall = 0x01,
-        Floor = 0x02
+        Wall = 0x00,
+        Floor = 0x01,
+        Air = 0x0F,
     }
 }
