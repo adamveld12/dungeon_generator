@@ -1,19 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Dungeon.Generator.Navigation;
 
 namespace Dungeon.Generator.Generation.Generators.GridBased
 {
-    public struct Feature
-    {
-        public FeatureType Type;
-        public CorridorType CorridorType;
-        public Point Location;
-        public Direction Direction;
-        public IEnumerable<Direction> Outlets;
-
-    }
-
     public enum CorridorType
     {
         OneWayCorridor = 0,
@@ -30,64 +21,60 @@ namespace Dungeon.Generator.Generation.Generators.GridBased
         Corridor = 0x10,
     }
 
-    public static class FeatureHelpers
+    public class Feature
     {
-        public static IEnumerable<Direction> Walls(this CorridorType corridorType, Direction direction)
-        {
-            switch (corridorType)
-            {
-                case CorridorType.OneWayCorridor:
-                    yield return direction;
-                    break;
-                case CorridorType.LeftTurnCorridor:
-                    yield return direction.TurnLeft();
-                    break;
-                case CorridorType.RightTurnCorridor:
-                    yield return direction.TurnRight();
-                    break;
-                case CorridorType.ThreeWayCorridor:
-                    yield return direction.TurnLeft();
-                    yield return direction.TurnRight();
-                    break;
-                case CorridorType.FourWayCorridor:
-                    yield return direction.TurnLeft();
-                    yield return direction.TurnRight();
-                    yield return direction;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException("corridorType");
-            }
-        }
-        public static IEnumerable<Direction> Walls(this Feature feature)
-        {
-            var featureType = feature.Type;
-            var direction = feature.Direction;
+        public Point Location;
+        public Feature Origin;
+        public FeatureType Type;
+        public CorridorType CorridorType;
+        public IEnumerable<Feature> Connections = Enumerable.Empty<Feature>();
 
-            switch (featureType)
-            {
-                case FeatureType.None:
-                    break;
-                case FeatureType.Room:
-                    yield return Direction.N;
-                    yield return Direction.W;
-                    yield return Direction.S;
-                    yield return Direction.E;
-                    break;
-                case FeatureType.Corridor:
-                    yield return direction;
-                    break;
-                default: throw new ArgumentOutOfRangeException("feature");
-            }
+        public  Direction GetDirectionOf( Feature other)
+        {
+            var location = other.Location;
+
+            if (location.X > Location.X)
+                return Direction.E;
+            if (location.X < Location.X)
+                return Direction.W;
+            if (location.Y > Location.Y)
+                return Direction.S;
+            if (location.Y < Location.Y)
+                return Direction.N;
+            
+            throw new InvalidOperationException();
         }
 
-
-        public static void CarveCorridor(this Feature feature, ITileMap map, int gridSize)
+        public void Carve(ITileMap map, int gridSize)
         {
-            var location = feature.Location.FromGrid(gridSize);
-            var direction = feature.Direction;
+            // carve the inlet
+            if (Origin != null)
+            {
+                var wall = Location.GetCenterWallPoint(GetDirectionOfOrigin(), gridSize);
+                map.Carve(wall, 1, 1, 1);
+            }
+
+            // carve the outlets
+            Connections.Where(feature => {
+                var direction = GetDirectionOf(feature);
+                var wallLocation = Location.GetCenterWallPoint(direction, gridSize);
+                map.Carve(wallLocation, 1, 1, 1);
+                return true;
+            }).ToArray();
+
+            if(Type == FeatureType.Room) CarveRoom(map, gridSize);
+            else if (Type == FeatureType.Corridor) CarveCorridor(map, gridSize);
+        }
+
+        public Direction GetDirectionOfOrigin() { return GetDirectionOf(Origin); }
+
+        private void CarveCorridor(ITileMap map, int gridSize)
+        {
+            var location = Location.FromGrid(gridSize);
+            var direction = GetDirectionOfOrigin();
             var offset = gridSize/2;
 
-            switch (feature.CorridorType)
+            switch (CorridorType)
             {
                 // corridor without turns
                 case CorridorType.OneWayCorridor:
@@ -142,17 +129,67 @@ namespace Dungeon.Generator.Generation.Generators.GridBased
             }
         }
 
-        public static void CarveRoom(this Feature feature, ITileMap map, int gridSize)
+        private void CarveRoom(ITileMap map, int gridSize)
         {
-//            var outletLocation = featureLocation.GetCenterWallPoint(wallDirection, GridSize);
-//            _map.Carve(outletLocation, 1, 1, 1);
-
-            map.Carve(feature.Location.FromGrid(gridSize) + 1, gridSize - 1, gridSize - 1, 1);
-
-            // carve an outlet from where we came from
-            var wall = feature.Location.GetCenterWallPoint(feature.Direction.TurnRight().TurnRight(), gridSize);
-            map.Carve(wall, 1, 1, 1);
+            map.Carve(Location.FromGrid(gridSize) + 1, gridSize - 1, gridSize - 1, 1);
         }
 
+        public IEnumerable<Direction> ConnectionCardinality
+        {
+            get { return Connections.Select(GetDirectionOf); }
+        }
+    }
+
+    public static class FeatureHelpers
+    {
+        public static IEnumerable<Direction> Walls(this CorridorType corridorType, Direction direction)
+        {
+            switch (corridorType)
+            {
+                case CorridorType.OneWayCorridor:
+                    yield return direction;
+                    break;
+                case CorridorType.LeftTurnCorridor:
+                    yield return direction.TurnLeft();
+                    break;
+                case CorridorType.RightTurnCorridor:
+                    yield return direction.TurnRight();
+                    break;
+                case CorridorType.ThreeWayCorridor:
+                    yield return direction.TurnLeft();
+                    yield return direction.TurnRight();
+                    break;
+                case CorridorType.FourWayCorridor:
+                    yield return direction.TurnLeft();
+                    yield return direction.TurnRight();
+                    yield return direction;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException("corridorType");
+            }
+        }
+
+        public static IEnumerable<Direction> Walls(this Feature feature)
+        {
+            var featureType = feature.Type;
+
+            switch (featureType)
+            {
+                case FeatureType.None:
+                    break;
+                case FeatureType.Room:
+                    yield return Direction.N;
+                    yield return Direction.W;
+                    yield return Direction.S;
+                    yield return Direction.E;
+                    break;
+                case FeatureType.Corridor:
+                    var direction = feature.GetDirectionOfOrigin();
+                    foreach (var wall in feature.CorridorType.Walls(direction))
+                        yield return wall;
+                    break;
+                default: throw new ArgumentOutOfRangeException("feature");
+            }
+        }
     }
 }

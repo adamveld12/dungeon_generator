@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
 using Dungeon.Generator.Navigation;
 
 namespace Dungeon.Generator.Generation.Generators.GridBased
@@ -29,40 +28,18 @@ namespace Dungeon.Generator.Generation.Generators.GridBased
         public void Execute()
         {
             // STEP 1.
-            // generate features on the map in grid space
-
-
-            /**
-             *  if room
-             *    for each wall
-             *    if space is clear
-             *      a 65% chance to spawn a room
-             *      a 33% chance to spawn a corridor
-             *      add feature to unprocessed list
-             *  else if corridor
-             *    33% chance of being a four way
-             *    33% chance of being a three way
-             *    33% chance of it being a one way
-             *      10% chance of turning either left or right
-             *    50% chance of having anteroom
-             *    for each wall
-             *      a 20% chance of spawning a corridor
-             *      if a corridor doesn't spawn, spawn a room
-             *      add feature to unprocessed list
-             **/
             // place a room in the center
             var mapCenter = _dimensions/2;
             var centerRoom = new Feature
             {
                 Location = mapCenter,
-                Direction = Direction.N,
                 Type = FeatureType.Room
             };
 
             _features[mapCenter.X, mapCenter.Y] = centerRoom;
 
 
-            var corridorTypes = Enum.GetValues(typeof (CorridorType)).Cast<CorridorType?>();
+            var corridorTypes = Enum.GetValues(typeof (CorridorType)).Cast<CorridorType>().ToArray();
             // add to unprocessed
             var unprocessed = new Queue<Feature>(1024);
             unprocessed.Enqueue(centerRoom);
@@ -70,99 +47,52 @@ namespace Dungeon.Generator.Generation.Generators.GridBased
             // for each unprocessed feature
             do
             {
+                // for each wall on the feature
                 var feature = unprocessed.Dequeue();
                 var featureLocation = feature.Location;
 
-                // if room
-                if (feature.Type == FeatureType.Room)
-                {
-                    // for each wall
-                    feature.Outlets = 
-                    feature.Walls()
-                        // if the space is clear
-                        .Where(wallDirection => featureLocation.CanMove(wallDirection, _features))
-                        .Where(wallDirection => {
-                            var newLocation = featureLocation.Move(wallDirection);
-                            return _features[newLocation.X, newLocation.Y].Type == FeatureType.None;
-                        })
-                        .Where(x => Chance(75));
-
-                        feature.Outlets.Select(wallDirection => {
-
-                            // move to that location
-                            var newLocation = featureLocation.Move(wallDirection);
-
-                            var newFeature = new Feature {
-                                Direction = wallDirection,
-                                Location = newLocation
-                            };
-
-                            // a 65% chance to spawn a room
-                            if (Chance(65)) newFeature.Type = FeatureType.Room;
-                            // a 33% chance to spawn a corridor
-                            else if (newLocation.CanMove(wallDirection, _map))
-                            {
-                                newFeature.Type = FeatureType.Corridor;
-                                newFeature.CorridorType = corridorTypes.FirstOrDefault(x => Chance(10)) ?? CorridorType.OneWayCorridor;
-                            }
-
-                            // set the feature in our datastructure
-                            _features[newLocation.X, newLocation.Y] = newFeature;
-
-                            return newFeature;
-                        })
-                        .Aggregate(unprocessed, (acc, newFeature) => {
-                            acc.Enqueue(newFeature);
-                            return acc;
-                        });
-
-                            // set the feature in our datastructure
-                    //feature.CarveRoom(_map, GridSize);
-                }
-                // else if corridor
-                else if (feature.Type == FeatureType.Corridor)
-                {
-
-                    // 100% chance of it being a one way
-                    feature.Outlets = feature.CorridorType.Walls(feature.Direction)
-                        // maybe check if all directions are clear for movement, and if not pick a different corridor type
-                        .Where(newDirection => featureLocation.CanMove(newDirection, _features))
-                        .Where(wallDirection => {
-                            var newLocation = featureLocation.Move(wallDirection);
-                            return _features[newLocation.X, newLocation.Y].Type == FeatureType.None;
-                        });
-
-                        feature.Outlets.Select(direction =>
+                feature.Connections = feature.Walls()
+                    // 75% chance of spawning a feature from any wall
+                    .Where(x => Chance(75))
+                    // where we can move (on the map) and where there isn't a feature already in place
+                    .Where(direction =>
+                    {
+                        var location = featureLocation.Move(direction);
+                        return location.CanMove(direction, _features) && _features[location.X, location.Y] == null;
+                    })
+                    // project into new features
+                    .Select(direction =>
+                    {
+                        var newLocation = featureLocation.Move(direction);
+                        var newFeature = new Feature
                         {
-                            var newLocation = featureLocation.Move(direction);
-                            var newFeature = new Feature
-                            {
-                                Location = newLocation,
-                                Direction = direction
-                            };
+                            Location = newLocation,
+                            Origin = feature
+                        };
 
-                            // 10% chance to spawn another corridor
-                            if (Chance(10) && newLocation.CanMove(direction, _map))
-                            {
-                                newFeature.Type = FeatureType.Corridor;
-                                newFeature.CorridorType = corridorTypes.FirstOrDefault(x => Chance(10)) ?? CorridorType.OneWayCorridor;
-                            }
-                            // otherwise spawn a room
-                            else newFeature.Type = FeatureType.Room;
-
-                            // set the feature in our datastructure
-                             _features[newLocation.X, newLocation.Y] = newFeature;
-                            
-                            return newFeature;
-                        })
-                        .Aggregate(unprocessed, (acc, newFeature) =>
+                        // 66 percent chance of the new feature being a room
+                        if (Chance(66))
+                            newFeature.Type = FeatureType.Room;
+                            // 33 percent chance of it being a corridor
+                        else
                         {
-                            acc.Enqueue(newFeature);
-                            return acc;
-                        });
-                }
-                
+                            newFeature.Type = FeatureType.Corridor;
+                            // 20 percent chance for each corridor type
+                            newFeature.CorridorType = CorridorType.OneWayCorridor;
+                                //corridorTypes.ElementAt(_random.Next(0, corridorTypes.Length));
+                        }
+
+                        return newFeature;
+                    });
+
+                    feature.Connections.Aggregate(unprocessed, (acc, newFeature) => {
+                        // add to unprocessed list
+                        acc.Enqueue(newFeature);
+                        return acc;
+                    });
+
                 _features[featureLocation.X, featureLocation.Y] = feature;
+
             } while (unprocessed.Count > 0);
 
             // STEP 2
@@ -171,48 +101,11 @@ namespace Dungeon.Generator.Generation.Generators.GridBased
             // generate anterooms 
             foreach (var feature in _features)
             {
-                var location = feature.Location;
-                var type = feature.Type;
-
-                if (type == FeatureType.None)
+                if(feature == null)
                     continue;
 
-                // carve outlet
-                var outlets = feature.Outlets;
-                if (outlets != null)
-                {
-                    Point outletLocation;
-                    outlets.Where(x => {
-                        outletLocation = location.GetCenterWallPoint(x, GridSize);
-                        _map.Carve(outletLocation, 1, 1, 1);
-                        return false;
-                    });
-                    
-                    outletLocation = location.GetCenterWallPoint(feature.Direction, GridSize);
-                    _map.Carve(outletLocation, 1, 1, 1);
-                }
-
-                if(type == FeatureType.Room)
-                    feature.CarveRoom(_map, GridSize);
-                else if (type == FeatureType.Corridor)
-                    feature.CarveCorridor(_map, GridSize);
+                feature.Carve(_map, GridSize);
             }
-        }
-
-        private IEnumerable<Feature> Surrounding(Feature feature)
-        {
-            var location = feature.Location;
-            return DirectionHelpers.Values()
-                .Where(x => location.CanMove(x, _features))
-                .Where(x => {
-                    var newLocation = location.Move(x);
-                    var directionalFeature = _features[newLocation.X, newLocation.Y];
-                    return directionalFeature.Type != FeatureType.None;
-                })
-                .Select(x => {
-                    var newLocation = location.Move(x);
-                    return _features[newLocation.X, newLocation.Y];
-                });
         }
 
         public bool Chance(int chance)
