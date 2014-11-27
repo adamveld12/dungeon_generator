@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace DungeonGenerator.Navigation
 {
-    public class Location
+    public class Point
     {
         #region Fields
 
@@ -21,7 +21,7 @@ namespace DungeonGenerator.Navigation
 
         #endregion
 
-        public Location()
+        public Point()
         {
             _x = 0;
             _y = 0;
@@ -66,19 +66,20 @@ namespace DungeonGenerator.Navigation
             _direction = (Direction)(directionVal % (int)Direction.Max);
         }
 
-        public TileType LookAhead(ITileMap map)
+        public ushort LookAhead(ITileMap map)
         {
-            TileType tileAhead = 0;
             if (CanWalk(map, 1))
             {
                 var tuple = _directionMovementDeltas[_direction];
 
                 var deltaX = X + tuple.Item1;
                 var deltaY = Y + tuple.Item2;
-                tileAhead = map[deltaX, deltaY];
+                return map[deltaX, deltaY];
             }
-            return tileAhead;
+
+            return 0;
         }
+
         #region Properties
 
         public int TotalStepsTaken

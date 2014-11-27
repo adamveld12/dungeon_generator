@@ -1,19 +1,21 @@
-﻿namespace DungeonGenerator.Navigation
+﻿using DungeonGenerator.Navigation;
+
+namespace DungeonGenerator
 {
     public class Dungeon : ITileMap
     {
         private readonly int _width;
         private readonly int _height;
-        private readonly TileType[,] _map;
+        private readonly ushort[,] _map;
 
         public Dungeon(int width, int height)
         {
             _width = width;
             _height = height;
-            _map = new TileType[width,height];
+            _map = new ushort[width,height];
         }
 
-        public TileType this[int x, int y]
+        public ushort this[int x, int y]
         {
             get { return _map[x, y]; }
             set { _map[x, y] = value; }

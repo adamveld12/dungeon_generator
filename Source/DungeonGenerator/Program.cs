@@ -1,68 +1,65 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
+using DungeonGenerator.Generation;
+using DungeonGenerator.Generation.Generators;
 using DungeonGenerator.Navigation;
 
 namespace DungeonGenerator
 {
     public class Program
     {
-        private const int WIDTH = 128;
-        private const int HEIGHT = 24;
-
-        static void Main(string[] args)
+        static void Main()
         {
             Console.Title = "Dungeon generator";
             Console.CursorVisible = false;
-            Console.SetWindowSize(WIDTH + 7, HEIGHT + 17);
 
-            var gen = new Generator(WIDTH, HEIGHT);
-            Render(gen);
+            var size = MapSize.Tiny;
+            var seed = 1024u;
+            var generator = new Generator(new RoomFirstGeneratorStrategy());
+
+            var mapDimensions = MapEditorTools.ToPoint(size);
+            Console.SetWindowSize(mapDimensions.X + 7, Math.Min(mapDimensions.Y + 17, 132));
             while (true)
             {
-                Render(gen);
+                var dungeon = generator.GenerateMap(size, seed++);
+                Render(dungeon);
                 Thread.Sleep(100);
-                if (!gen.Step())
-                {
-                    Render(gen);
-                    Console.WriteLine("\nSim over, press enter to run a new sim.");
-                    Console.ReadLine();
-                    Console.Clear();
-                    gen = new Generator(128, 24);
-                }
+                Console.WriteLine("Press 'enter' to see a new dungeon");
+                Console.ReadLine();
+                Console.Clear();
             }
-            
         }
 
-        public static void Render(Generator generator)
+        public static void Render(ITileMap map)
         {
-            var dungeon = generator.Dungeon;
-            var width = dungeon.Width;
-            var height = dungeon.Height;
+            var width = map.Width;
+            var height = map.Height;
 
-            for (int x = 0; x < width; x++)
+            for (var x = 0; x < width; x++)
             {
-                for (int y = 0; y < height; y++)
+                for (var y = 0; y < height; y++)
                 {
                     Console.SetCursorPosition(x + 3, y + 3);
-                    var tile = dungeon[x, y];
+                    var tile = map[x, y];
                     Console.ForegroundColor = ConsoleColor.White;
                     var output = "";
 
                     switch (tile)
                     {
-                        case TileType.Wall:
+                        case 0:
                             output = "\u256C";
                             break;
-                        case TileType.Floor:
+                        case 1:
                             Console.ForegroundColor = ConsoleColor.DarkGray;
                             output = "\u2591";
                             break;
-                        case TileType.Air:
+                        case 2:
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
+
                     Console.Write(output);
                 }
             }
@@ -70,8 +67,7 @@ namespace DungeonGenerator
             Console.WriteLine();
             Console.WriteLine();
             Console.WriteLine(Enumerable.Repeat('\u2500', width + 7).ToArray());
-//            Console.WriteLine("Builder Count: {0}\tMax Generation: {1}", generator.BuilderCount, generator.Generation);
-            Console.WriteLine("Width: {0} Height: {1}", dungeon.Width, dungeon.Height);
+            Console.WriteLine("Width: {0} Height: {1}", width, height);
             Console.WriteLine();
             Console.WriteLine(Enumerable.Repeat('\u2500', width + 7).ToArray());
         }
