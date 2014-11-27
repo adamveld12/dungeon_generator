@@ -10,6 +10,8 @@ namespace Dungeon.Generator.Generation.Generators.GridBased
         public CorridorType CorridorType;
         public Point Location;
         public Direction Direction;
+        public IEnumerable<Direction> Outlets;
+
     }
 
     public enum CorridorType
@@ -83,28 +85,44 @@ namespace Dungeon.Generator.Generation.Generators.GridBased
         {
             var location = feature.Location.FromGrid(gridSize);
             var direction = feature.Direction;
+            var offset = gridSize/2;
+
             switch (feature.CorridorType)
             {
                 // corridor without turns
                 case CorridorType.OneWayCorridor:
-                    if(direction == Direction.N || direction == Direction.S)
-                        map.Carve(location + new Point(gridSize/2, 1), 1, gridSize, 1);
-                    else 
-                        map.Carve(location + new Point(1, gridSize/2), gridSize, 1, 1);
+                    var dirNormal = direction.TurnLeft().Normal();
+                    dirNormal.X = Math.Abs(dirNormal.X);
+                    dirNormal.Y = Math.Abs(dirNormal.Y);
+                    var locationDelta = new Point(dirNormal.X * offset, dirNormal.Y * offset);
+
+                    var carveNormal = direction.Normal();
+                    carveNormal.X = Math.Abs(carveNormal.X);
+                    carveNormal.Y = Math.Abs(carveNormal.Y);
+
+                    var carveDelta = carveNormal*gridSize;
+                    carveDelta.X = Math.Max(carveDelta.X, 1);
+                    carveDelta.Y = Math.Max(carveDelta.Y, 1);
+
+                    map.Carve(location + locationDelta, carveDelta.X, carveDelta.Y, 1);
+//                    if(direction == Direction.N || direction == Direction.S)
+//                        map.Carve(location + new Point(gridSize/2, 0), 1, gridSize, 1);
+//                    else 
+//                        map.Carve(location + new Point(0, gridSize/2), gridSize, 1, 1);
                     break;
                 // corridor that turns left and right
                 case CorridorType.ThreeWayCorridor:
                     if (direction == Direction.N || direction == Direction.S) {
                         // entry
-                        map.Carve(location + new Point(gridSize/2, 1), 1, gridSize/2, 1);
+                        map.Carve(location + new Point(gridSize/2, 0), 1, gridSize/2, 1);
                         // fork
-                        map.Carve(location + new Point(1, gridSize/2), gridSize, 1, 1);
+                        map.Carve(location + new Point(0, gridSize/2), gridSize, 1, 1);
                     }
                     else {
                         // entry
-                        map.Carve(location + new Point(1, gridSize/2), gridSize/2, 1, 1);
+                        map.Carve(location + new Point(0, gridSize/2), gridSize/2, 1, 1);
                         // fork
-                        map.Carve(location + new Point(gridSize/2, 1), 1, gridSize, 1);
+                        map.Carve(location + new Point(gridSize/2, 0), 1, gridSize, 1);
                     }
 
                     break;
@@ -126,10 +144,13 @@ namespace Dungeon.Generator.Generation.Generators.GridBased
 
         public static void CarveRoom(this Feature feature, ITileMap map, int gridSize)
         {
+//            var outletLocation = featureLocation.GetCenterWallPoint(wallDirection, GridSize);
+//            _map.Carve(outletLocation, 1, 1, 1);
+
             map.Carve(feature.Location.FromGrid(gridSize) + 1, gridSize - 1, gridSize - 1, 1);
 
             // carve an outlet from where we came from
-            var wall = feature.Location.GetCenterWallPoint(feature.Direction.TurnLeft().TurnLeft(), gridSize);
+            var wall = feature.Location.GetCenterWallPoint(feature.Direction.TurnRight().TurnRight(), gridSize);
             map.Carve(wall, 1, 1, 1);
         }
 

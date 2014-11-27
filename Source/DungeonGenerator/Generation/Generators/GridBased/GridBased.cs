@@ -77,6 +77,7 @@ namespace Dungeon.Generator.Generation.Generators.GridBased
                 if (feature.Type == FeatureType.Room)
                 {
                     // for each wall
+                    feature.Outlets = 
                     feature.Walls()
                         // if the space is clear
                         .Where(wallDirection => featureLocation.CanMove(wallDirection, _features))
@@ -84,11 +85,9 @@ namespace Dungeon.Generator.Generation.Generators.GridBased
                             var newLocation = featureLocation.Move(wallDirection);
                             return _features[newLocation.X, newLocation.Y].Type == FeatureType.None;
                         })
-                        .Where(x => Chance(75))
-                        .Select(wallDirection => {
-                            // carve outlet
-                            var outletLocation = featureLocation.GetCenterWallPoint(wallDirection, GridSize);
-                            _map.Carve(outletLocation, 1, 1, 1);
+                        .Where(x => Chance(75));
+
+                        feature.Outlets.Select(wallDirection => {
 
                             // move to that location
                             var newLocation = featureLocation.Move(wallDirection);
@@ -100,12 +99,11 @@ namespace Dungeon.Generator.Generation.Generators.GridBased
 
                             // a 65% chance to spawn a room
                             if (Chance(65)) newFeature.Type = FeatureType.Room;
-                                // a 33% chance to spawn a corridor
-                            else
+                            // a 33% chance to spawn a corridor
+                            else if (newLocation.CanMove(wallDirection, _map))
                             {
                                 newFeature.Type = FeatureType.Corridor;
-                                newFeature.CorridorType = CorridorType.ThreeWayCorridor;
-                                    //corridorTypes.FirstOrDefault(x => Chance(10)) ?? CorridorType.OneWayCorridor;
+                                newFeature.CorridorType = corridorTypes.FirstOrDefault(x => Chance(10)) ?? CorridorType.OneWayCorridor;
                             }
 
                             // set the feature in our datastructure
@@ -117,6 +115,8 @@ namespace Dungeon.Generator.Generation.Generators.GridBased
                             acc.Enqueue(newFeature);
                             return acc;
                         });
+
+                            // set the feature in our datastructure
                     //feature.CarveRoom(_map, GridSize);
                 }
                 // else if corridor
@@ -124,14 +124,16 @@ namespace Dungeon.Generator.Generation.Generators.GridBased
                 {
 
                     // 100% chance of it being a one way
-                    feature.CorridorType.Walls(feature.Direction)
+                    feature.Outlets = feature.CorridorType.Walls(feature.Direction)
                         // maybe check if all directions are clear for movement, and if not pick a different corridor type
                         .Where(newDirection => featureLocation.CanMove(newDirection, _features))
                         .Where(wallDirection => {
                             var newLocation = featureLocation.Move(wallDirection);
                             return _features[newLocation.X, newLocation.Y].Type == FeatureType.None;
-                        })
-                        .Select(direction => {
+                        });
+
+                        feature.Outlets.Select(direction =>
+                        {
                             var newLocation = featureLocation.Move(direction);
                             var newFeature = new Feature
                             {
@@ -139,8 +141,8 @@ namespace Dungeon.Generator.Generation.Generators.GridBased
                                 Direction = direction
                             };
 
-                            // 20% chance to spawn another corridor
-                            if (Chance(20))
+                            // 10% chance to spawn another corridor
+                            if (Chance(10) && newLocation.CanMove(direction, _map))
                             {
                                 newFeature.Type = FeatureType.Corridor;
                                 newFeature.CorridorType = corridorTypes.FirstOrDefault(x => Chance(10)) ?? CorridorType.OneWayCorridor;
@@ -160,6 +162,7 @@ namespace Dungeon.Generator.Generation.Generators.GridBased
                         });
                 }
                 
+                _features[featureLocation.X, featureLocation.Y] = feature;
             } while (unprocessed.Count > 0);
 
             // STEP 2
@@ -169,28 +172,44 @@ namespace Dungeon.Generator.Generation.Generators.GridBased
             foreach (var feature in _features)
             {
                 var location = feature.Location;
-                var surroundingFeatures = Surrounding(feature);
                 var type = feature.Type;
+
+                if (type == FeatureType.None)
+                    continue;
+
+                // carve outlet
+                var outlets = feature.Outlets;
+                if (outlets != null)
+                {
+                    Point outletLocation;
+                    outlets.Where(x => {
+                        outletLocation = location.GetCenterWallPoint(x, GridSize);
+                        _map.Carve(outletLocation, 1, 1, 1);
+                        return false;
+                    });
+                    
+                    outletLocation = location.GetCenterWallPoint(feature.Direction, GridSize);
+                    _map.Carve(outletLocation, 1, 1, 1);
+                }
 
                 if(type == FeatureType.Room)
                     feature.CarveRoom(_map, GridSize);
                 else if (type == FeatureType.Corridor)
                     feature.CarveCorridor(_map, GridSize);
-
             }
         }
 
         private IEnumerable<Feature> Surrounding(Feature feature)
         {
             var location = feature.Location;
-            return DirectionHelpers.Values().Where(x => location.CanMove(x, _features))
+            return DirectionHelpers.Values()
+                .Where(x => location.CanMove(x, _features))
                 .Where(x => {
                     var newLocation = location.Move(x);
                     var directionalFeature = _features[newLocation.X, newLocation.Y];
                     return directionalFeature.Type != FeatureType.None;
                 })
-                .Select(x =>
-                {
+                .Select(x => {
                     var newLocation = location.Move(x);
                     return _features[newLocation.X, newLocation.Y];
                 });
