@@ -4,13 +4,13 @@ namespace DungeonGenerator.Generation.Generators
 {
     public interface IDungeonGenerationStrategy
     {
-        void Execute(ITileMap map);
+        void Execute(MersennePrimeRandom random, ITileMap map);
     }
 
 
     public class PathwayFirstGeneratorStrategy : IDungeonGenerationStrategy
     {
-        public void Execute(ITileMap map)
+        public void Execute(MersennePrimeRandom random, ITileMap map)
         {
             
         }
