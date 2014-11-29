@@ -1,20 +1,31 @@
-using System;
 using System.Collections.Generic;
+using System.Linq;
 using DungeonGenerator.Navigation;
 
 namespace DungeonGenerator.Generation.Generators
 {
     public class RoomFirstGeneratorStrategy : IDungeonGenerationStrategy
     {
-
         public void Execute(MersennePrimeRandom random, ITileMap map)
         {
             // layout rooms
             var rooms = GenerateRooms(map);
 
+            ConnectRooms(map, rooms);
+
             PlaceItems(map, rooms);
         }
 
+
+        public bool Chance(int chance)
+        {
+            return false;
+        }
+
+        private void ConnectRooms(ITileMap map, IEnumerable<Room> rooms)
+        {
+            
+        }
 
         private IEnumerable<Room> GenerateRooms(ITileMap map)
         {
@@ -63,8 +74,34 @@ namespace DungeonGenerator.Generation.Generators
         private void PlaceItems(ITileMap map, IEnumerable<Room> rooms)
         {
             // place entrance at a random point in the center room
+            rooms.First().PlaceItem(Item.Entrance);
+
+            var width = map.Width;
+            var height = map.Height;
+            var randomIndex ;
+
             // place exit in a random room near one of the corners
+            var exitRooms = rooms.Where(room =>
+            {
+                var inLeft = room.X <= width*0.20;
+                var inTop = room.Y <= height*0.20;
+                var inRight = room.X >= (width - width*0.20);
+                var inBottom = room.Y >= (height - height*0.20);
+
+                return (inLeft && inTop 
+                    || inLeft && inBottom 
+                    || inRight && inTop 
+                    || inRight && inBottom);
+
+            }).ToList();
+
+            exitRooms.First((room, index) => {
+                return (index == randomIndex);
+            }).PlaceItem(Item.Exit);
+
             // place boss spawns at corners of map
+            exitRooms.ForEach(x => x.PlaceItem(Item.BossSpawn));
+
         }
     }
 }

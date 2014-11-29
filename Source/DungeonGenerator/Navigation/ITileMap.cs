@@ -18,6 +18,19 @@ namespace DungeonGenerator.Navigation
         public int Width;
         public int Height;
 
+        /// <summary>
+        /// Sets the X/Y coordinate of the item to inside of this room
+        /// </summary>
+        /// <param name="item">The item to place</param>
+        public void PlaceItem(Item item)
+        {
+            var oldxy = item.Location;
+            item.Location = new Point
+            {
+                X = X + (oldxy.X % Width),
+                Y = Y + (oldxy.Y % Height)
+            };
+        }
 
         public Point GetCenterWallPoint(Direction direction)
         {
@@ -51,7 +64,6 @@ namespace DungeonGenerator.Navigation
             };
         }
     }
-
 
     public struct Item
     {
