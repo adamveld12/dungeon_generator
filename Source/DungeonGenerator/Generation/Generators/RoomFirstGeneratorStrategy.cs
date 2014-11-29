@@ -9,11 +9,13 @@ namespace DungeonGenerator.Generation.Generators
         public void Execute(MersennePrimeRandom random, ITileMap map)
         {
             // layout rooms
-            var rooms = GenerateRooms(map);
+            var rooms = GenerateRooms(map, random);
 
-            ConnectRooms(map, rooms);
+            // connect rooms
+            ConnectRooms(map, rooms, random);
 
-            PlaceItems(map, rooms);
+            // place some items in the rooms
+            var items = PlaceItems(map, rooms, random);
         }
 
 
@@ -22,12 +24,23 @@ namespace DungeonGenerator.Generation.Generators
             return false;
         }
 
-        private void ConnectRooms(ITileMap map, IEnumerable<Room> rooms)
+        private void ConnectRooms(ITileMap map, IEnumerable<Room> rooms, MersennePrimeRandom random)
         {
             
+             /*
+              * connect rooms
+              * for each room
+              * for each wall
+              *     randomly select a 'feature' to place on that side
+              *     if the feature fits
+              *       place it
+              *       add the feature to the unvisited feature list
+              *      else
+              *        look for another feature
+              */
         }
 
-        private IEnumerable<Room> GenerateRooms(ITileMap map)
+        private IEnumerable<Room> GenerateRooms(ITileMap map, MersennePrimeRandom random)
         {
             // place a room in the center of the map
             const int centerRoomSize = 4;
@@ -46,16 +59,6 @@ namespace DungeonGenerator.Generation.Generators
                 // 60% chance to place a room
                 // pick random width/height
 
-
-            // connect rooms
-            // for each room
-                // for each wall
-                    // randomly select a 'feature' to place on that side
-                    // if the feature fits
-                        // place it
-                        // add the feature to the unvisited feature list
-                    // else
-                        // look for another feature
             /* 
             * Paths: Connects rooms together
             * 
@@ -71,14 +74,13 @@ namespace DungeonGenerator.Generation.Generators
 
         }
 
-        private void PlaceItems(ITileMap map, IEnumerable<Room> rooms)
+        private void PlaceItems(ITileMap map, IEnumerable<Room> rooms, MersennePrimeRandom random)
         {
             // place entrance at a random point in the center room
             rooms.First().PlaceItem(Item.Entrance);
 
             var width = map.Width;
             var height = map.Height;
-            var randomIndex ;
 
             // place exit in a random room near one of the corners
             var exitRooms = rooms.Where(room =>
@@ -95,13 +97,15 @@ namespace DungeonGenerator.Generation.Generators
 
             }).ToList();
 
-            exitRooms.First((room, index) => {
-                return (index == randomIndex);
-            }).PlaceItem(Item.Exit);
+            // place exit in a random exit
+            var randomIndex = random.Next(exitRooms.Count);
+            exitRooms[randomIndex].PlaceItem(Item.Exit);
 
-            // place boss spawns at corners of map
-            exitRooms.ForEach(x => x.PlaceItem(Item.BossSpawn));
-
+            // place boss and loot spawns at corners of map
+            exitRooms.ForEach(x => {
+                x.PlaceItem(Item.BossSpawn);
+                x.PlaceItem(Item.LootSpawn);
+            });
         }
     }
 }
