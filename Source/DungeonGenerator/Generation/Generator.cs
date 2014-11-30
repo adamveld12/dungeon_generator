@@ -16,8 +16,9 @@ namespace Dungeon.Generator.Generation
         public ITileMap GenerateMap(MapSize size, uint seed)
         {
             var map = CreateMap(size);
+            var random = new MersennePrimeRandom(seed);
 
-            _strategy.Execute(map);
+            _strategy.Execute(random, map);
 
             return map;
         }
