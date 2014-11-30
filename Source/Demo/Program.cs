@@ -19,7 +19,7 @@ namespace Demo
             var generator = new Generator(new RoomFirstGeneratorStrategy());
 
             var mapDimensions = MapEditorTools.ToPoint(size);
-            Console.SetWindowSize(Math.Min(mapDimensions.X + 7, 75), Math.Min(mapDimensions.Y + 17, 132));
+            Console.SetWindowSize(Math.Min(mapDimensions.X + 7, 75), Math.Min(mapDimensions.Y + 17, 75));
             while (true)
             {
                 var dungeon = generator.GenerateMap(size, seed++);
