@@ -43,26 +43,31 @@ namespace Demo
                     Console.SetCursorPosition(x + 3, y + 3);
                     var tile = map[x, y];
                     Console.ForegroundColor = ConsoleColor.White;
-                    var output = "";
+                    char output;
 
                     switch (tile)
                     {
                         case 0:
-                            output = "\u256C";
+                            output = '\u256C';
                             break;
                         case 1:
-                            Console.ForegroundColor = ConsoleColor.DarkGray;
-                            output = "\u2591";
+                            Console.ForegroundColor = ConsoleColor.Gray;
+                            output = '\u2591';
                             break;
                         case 2:
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            output = '@';
                             break;
                         default:
-                            throw new ArgumentOutOfRangeException();
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            output = '?';
+                            break;
                     }
 
                     Console.Write(output);
                 }
             }
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
 
             Console.WriteLine();
             Console.WriteLine();
