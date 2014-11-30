@@ -68,7 +68,6 @@ namespace Dungeon.Generator.Navigation
             var intersectingX = room.X + room.Width >= X && room.X <= X + Width;
             var intersectingY = room.Y + room.Height >= Y && room.Y <= Y + Height;
 
-
             return (intersectingX && intersectingY);
         }
     }
