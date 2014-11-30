@@ -1,6 +1,5 @@
 using System;
 using Dungeon.Generator.Generation;
-using Dungeon.Generator.Navigation;
 
 namespace Dungeon.Generator.Navigation
 {

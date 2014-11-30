@@ -14,7 +14,7 @@ namespace Demo
             Console.Title = "Dungeon generator";
             Console.CursorVisible = false;
 
-            var size = MapSize.Tiny;
+            const MapSize size = MapSize.Tiny;
             var seed = 1024u;
             var generator = new Generator(new RoomFirstGeneratorStrategy());
 
