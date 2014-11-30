@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Dungeon.Generator.Navigation
 {
-    public class Point
+    public struct Point
     {
         #region Fields
 
@@ -12,7 +12,7 @@ namespace Dungeon.Generator.Navigation
         private int _totalStepsTaken;
         private Direction _direction;
 
-        private readonly IDictionary<Direction, Tuple<int, int>> _directionMovementDeltas = new Dictionary<Direction, Tuple<int, int>>{
+        private static readonly IDictionary<Direction, Tuple<int, int>> _directionMovementDeltas = new Dictionary<Direction, Tuple<int, int>>{
             {Direction.N, new Tuple<int, int>(0, -1)},
             {Direction.S, new Tuple<int, int>(0, 1)},
             {Direction.E, new Tuple<int, int>(1, 0)},
@@ -21,10 +21,10 @@ namespace Dungeon.Generator.Navigation
 
         #endregion
 
-        public Point()
+        public Point(int x, int y)
         {
-            _x = 0;
-            _y = 0;
+            _x = x;
+            _y = y;
             _totalStepsTaken = 0;
             _direction = Direction.N;
         }
