@@ -53,5 +53,10 @@ namespace Dungeon.Generator.Navigation
 
             return canCarve;
         }
+
+        public static void CarveRoom(ITileMap map, Room room)
+        {
+            Carve(map, new Point { X = room.X, Y = room.Y } , room.Width, room.Height, 1);
+        }
     }
 }

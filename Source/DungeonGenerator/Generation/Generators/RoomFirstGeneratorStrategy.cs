@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Dungeon.Generator.Navigation;
@@ -6,13 +7,21 @@ namespace Dungeon.Generator.Generation.Generators
 {
     public class RoomFirstGeneratorStrategy : IDungeonGenerationStrategy
     {
+        public RoomFirstGeneratorStrategy()
+        {
+            MaxRoomSize = 6;
+            RoomChance = 80;
+            CornerSize = 0.20;
+            CenterRoomSize = 8;
+        }
+
         public void Execute(MersennePrimeRandom random, ITileMap map)
         {
             // layout rooms
             var rooms = GenerateRooms(map, random);
 
             // connect rooms
-            /* var hallways = */ ConnectRooms(map, rooms, random);
+            var hallways = ConnectRooms(map, rooms, random);
 
             // place some items in the rooms
             var items = PlaceItems(map, rooms, random);
@@ -20,27 +29,17 @@ namespace Dungeon.Generator.Generation.Generators
             // return new MapMeta(rooms, hallways, items);
         }
 
-        /// <summary>
-        /// Using a random, calculates a 'chance' or percentage of an event happening, from 0 - 100
-        /// </summary>
-        /// <param name="random"></param>
-        /// <param name="chance"></param>
-        /// <returns></returns>
-        public bool Chance(MersennePrimeRandom random, int chance)
-        {
-            return random.Next(0, 101) <= chance;
-        }
+        #region Private Parts 
 
         private IEnumerable<Room> GenerateRooms(ITileMap map, MersennePrimeRandom random)
         {
             // place a room in the center of the map
-            const int centerRoomSize = 4;
             var centerRoom = new Room
             {
-                Height = centerRoomSize,
-                Width = centerRoomSize,
-                X =  map.Width/2 - centerRoomSize/2,
-                Y = map.Height/2 - centerRoomSize/2
+                Height = CenterRoomSize,
+                Width = CenterRoomSize,
+                X = map.Width/2 - CenterRoomSize/2,
+                Y = map.Height/2 - CenterRoomSize/2
             };
 
             var roomList = new List<Room> {
@@ -48,25 +47,42 @@ namespace Dungeon.Generator.Generation.Generators
                 centerRoom
             };
 
+            // generate and place rooms
             var width = map.Width;
             var height = map.Height;
 
-            const int roomSize = 4;
+            // create a grid over the tile map
+            // for each grid location...
+            for (var gridX = 0; gridX < width/MaxRoomSize; gridX++)
+                for (var gridY = 0; gridY < height/MaxRoomSize; gridY++)
+                    // if there is a chance to place a room
+                    if (Chance(random, RoomChance))
+                    {
+                        // use a random width and height
+                        var roomWidth = random.Next(2, MaxRoomSize);
+                        var roomHeight = random.Next(2, MaxRoomSize);
 
+                        // create a new room with random width and height
+                        // at the room location
+                        var room = new Room {
+                            Width = roomWidth,
+                            Height = roomHeight,
+                            X = gridX * MaxRoomSize + 1,
+                            Y = gridY * MaxRoomSize + 1
+                        };
 
-            /**
-             * generate and place rooms
-             * 
-             * create a grid over the tile map
-             * for each grid location
-             *   60% chance to place a room
-             *   pick random width/height
-             **/
+                        // add the room
+                        roomList.Add(room);
+                    }
+
+            // carve all the rooms
+            // this makes us iterate over the room list again giving us O(2N)
+            roomList.ForEach(room => MapEditorTools.CarveRoom(map, room));
 
             return roomList;
         }
 
-        private void ConnectRooms(ITileMap map, IEnumerable<Room> rooms, MersennePrimeRandom random)
+        private IEnumerable<Pathway> ConnectRooms(ITileMap map, IEnumerable<Room> rooms, MersennePrimeRandom random)
         {
             /* 
             * Paths: Connects rooms together
@@ -79,24 +95,32 @@ namespace Dungeon.Generator.Generation.Generators
             *  A hallway that is 3 units wide and doesn't turn
             * 
             */
-            
-             /*
-              * connect rooms
-              * for each room
-              * for each wall
-              *     randomly select a 'feature' to place on that side
-              *     if the feature fits
-              *       place it
-              *       add the feature to the unvisited feature list
-              *      else
-              *        look for another feature
-              */
-        }
 
+            var pathways = Enumerable.Empty<Pathway>();
+
+            var directions = Enum.GetValues(typeof (Direction)).Cast<Direction>();
+
+            // for each room get the center wall points
+            rooms.SelectMany(room => directions.Select(room.GetCenterWallPoint))
+                 .Select(wallPoint => 1);
+
+            /*
+            * connect rooms
+            * for each room
+            * for each wall
+            *     randomly select a 'feature' to place on that side
+            *     if the feature fits
+            *       place it
+            *       add the feature to the unvisited feature list
+            *      else
+            *        look for another feature
+            */
+
+            return pathways;
+        }
 
         private IEnumerable<Item> PlaceItems(ITileMap map, IEnumerable<Room> rooms, MersennePrimeRandom random)
         {
-            
             // place entrance at a random point in the center room
             rooms.First().PlaceItem(Item.Entrance);
 
@@ -105,10 +129,10 @@ namespace Dungeon.Generator.Generation.Generators
 
             // place exit in a random room near one of the corners
             var exitRooms = rooms.Where(room => {
-                var inLeft = room.X <= width*0.20;
-                var inTop = room.Y <= height*0.20;
-                var inRight = room.X >= (width - width*0.20);
-                var inBottom = room.Y >= (height - height*0.20);
+                var inLeft = room.X <= width*CornerSize;
+                var inTop = room.Y <= height*CornerSize;
+                var inRight = room.X >= (width - width*CornerSize);
+                var inBottom = room.Y >= (height - height*CornerSize);
 
                 return (inLeft && inTop 
                     || inLeft && inBottom 
@@ -137,5 +161,25 @@ namespace Dungeon.Generator.Generation.Generators
 
             return items;
         }
+
+        /// <summary>
+        /// Using a random, calculates a 'chance' or percentage of an event happening, from 0 - 100
+        /// </summary>
+        /// <param name="random"></param>
+        /// <param name="chance"></param>
+        /// <returns></returns>
+        private bool Chance(MersennePrimeRandom random, int chance)
+        { return random.Next(0, 101) <= chance; }
+
+        #endregion
+
+        #region Properties
+
+        public int RoomChance { get; set; }
+        public double CornerSize { get; set; }
+        public int MaxRoomSize { get; set; }
+        public int CenterRoomSize { get; set; }
+
+        #endregion
     }
 }
