@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
-using DungeonGenerator.Navigation;
+using Dungeon.Generator.Navigation;
 
-namespace DungeonGenerator.Generation.Generators
+namespace Dungeon.Generator.Generation.Generators
 {
     public class RoomFirstGeneratorStrategy : IDungeonGenerationStrategy
     {

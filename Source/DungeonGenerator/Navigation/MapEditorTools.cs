@@ -1,7 +1,8 @@
 using System;
-using DungeonGenerator.Generation;
+using Dungeon.Generator.Generation;
+using Dungeon.Generator.Navigation;
 
-namespace DungeonGenerator.Navigation
+namespace Dungeon.Generator.Navigation
 {
     public static class MapEditorTools
     {

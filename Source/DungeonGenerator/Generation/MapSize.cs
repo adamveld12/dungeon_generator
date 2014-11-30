@@ -1,4 +1,4 @@
-namespace DungeonGenerator.Generation
+namespace Dungeon.Generator.Generation
 {
     public enum MapSize : byte
     {

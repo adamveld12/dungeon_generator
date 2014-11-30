@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace DungeonGenerator.Navigation
+namespace Dungeon.Generator.Navigation
 {
     public class Point
     {

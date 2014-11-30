@@ -1,6 +1,6 @@
-﻿using DungeonGenerator.Navigation;
+﻿using Dungeon.Generator.Navigation;
 
-namespace DungeonGenerator
+namespace Dungeon.Generator
 {
     public class Dungeon : ITileMap
     {

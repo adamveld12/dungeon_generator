@@ -1,8 +1,7 @@
-using System;
-using DungeonGenerator.Generation.Generators;
-using DungeonGenerator.Navigation;
+using Dungeon.Generator.Generation.Generators;
+using Dungeon.Generator.Navigation;
 
-namespace DungeonGenerator.Generation
+namespace Dungeon.Generator.Generation
 {
     public class Generator
     {

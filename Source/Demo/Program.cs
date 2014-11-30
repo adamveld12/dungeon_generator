@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
-using DungeonGenerator.Generation;
-using DungeonGenerator.Generation.Generators;
-using DungeonGenerator.Navigation;
+using Dungeon.Generator.Navigation;
+using Dungeon.Generator.Generation;
+using Dungeon.Generator.Generation.Generators;
 
-namespace DungeonGenerator
+namespace Demo
 {
     public class Program
     {

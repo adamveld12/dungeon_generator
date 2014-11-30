@@ -1,6 +1,6 @@
-using DungeonGenerator.Navigation;
+using Dungeon.Generator.Navigation;
 
-namespace DungeonGenerator.Generation.Generators
+namespace Dungeon.Generator.Generation.Generators
 {
     public interface IDungeonGenerationStrategy
     {
