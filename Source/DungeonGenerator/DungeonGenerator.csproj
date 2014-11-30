@@ -61,10 +61,12 @@
     <Compile Include="Generation\MapSize.cs" />
     <Compile Include="Navigation\Direction.cs" />
     <Compile Include="Dungeon.cs" />
+    <Compile Include="Navigation\Item.cs" />
     <Compile Include="Navigation\ITileMap.cs" />
     <Compile Include="Generation\MersennePrimeRandom.cs" />
     <Compile Include="Navigation\MapEditorTools.cs" />
     <Compile Include="Navigation\Point.cs" />
+    <Compile Include="Navigation\Room.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -71,8 +71,9 @@ namespace Dungeon.Generator.Generation.Generators
                             Y = gridY * MaxRoomSize + 1
                         };
 
-                        // add the room
-                        roomList.Add(room);
+                        if(!centerRoom.Intersects(room))
+                            // add the room
+                            roomList.Add(room);
                     }
 
             // carve all the rooms
