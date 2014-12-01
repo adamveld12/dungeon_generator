@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Dungeon.Generator.Navigation
 {
+    [DebuggerDisplay("({X},{Y})")]
     public struct Point
     {
         #region Fields
@@ -27,6 +29,24 @@ namespace Dungeon.Generator.Navigation
             _y = y;
             _totalStepsTaken = 0;
             _direction = Direction.N;
+        }
+
+        public bool OnEdge(ITileMap map, Direction direction)
+        {
+            const int padding = 4;
+            switch (direction)
+            {
+                case Direction.N:
+                    return _y <= padding;
+                case Direction.E:
+                    return _x >= map.Width - padding;
+                case Direction.S:
+                    return _y >= map.Height - padding;
+                case Direction.W:
+                    return _x <= padding;
+                default:
+                    throw new ArgumentOutOfRangeException("direction");
+            }
         }
 
         public bool CanWalk(ITileMap tilemap, int builderWidth)

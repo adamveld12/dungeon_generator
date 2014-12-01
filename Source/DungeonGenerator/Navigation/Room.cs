@@ -1,13 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace Dungeon.Generator.Navigation
 {
-    public struct Pathway
-    {
-        public Room Start;
-        public Room End;
-    }
-
+    [DebuggerDisplay("Position:({X},{Y}) Size:({Width},{Height})")]
     public struct Room
     {
         public int X;
@@ -69,6 +65,16 @@ namespace Dungeon.Generator.Navigation
             var intersectingY = room.Y + room.Height >= Y && room.Y <= Y + Height;
 
             return (intersectingX && intersectingY);
+        }
+
+        public Point Location
+        {
+            get { return new Point(X, Y); }
+        }
+
+        public Point Center
+        {
+            get {  return new Point(X + Width/2, Y + Height/2); }
         }
     }
 }

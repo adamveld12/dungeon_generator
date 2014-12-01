@@ -26,12 +26,12 @@ namespace Dungeon.Generator.Generation.Generators
             // place some items in the rooms
             var items = PlaceItems(map, rooms, random);
 
-            // return new MapMeta(rooms, hallways, items);
+            //var meta = new MapMeta(rooms, hallways, items);
         }
 
         #region Private Parts 
 
-        private IEnumerable<Room> GenerateRooms(ITileMap map, MersennePrimeRandom random)
+        private Room[] GenerateRooms(ITileMap map, MersennePrimeRandom random)
         {
             // place a room in the center of the map
             var centerRoom = new Room
@@ -71,6 +71,8 @@ namespace Dungeon.Generator.Generation.Generators
                             Y = gridY * MaxRoomSize + 1
                         };
 
+                        // if the room happens to intersect with the 
+                        // center room, discard it
                         if(!centerRoom.Intersects(room))
                             // add the room
                             roomList.Add(room);
@@ -80,10 +82,10 @@ namespace Dungeon.Generator.Generation.Generators
             // this makes us iterate over the room list again giving us O(2N)
             roomList.ForEach(room => MapEditorTools.CarveRoom(map, room));
 
-            return roomList;
+            return roomList.ToArray();
         }
 
-        private IEnumerable<Pathway> ConnectRooms(ITileMap map, IEnumerable<Room> rooms, MersennePrimeRandom random)
+        private Pathway[] ConnectRooms(ITileMap map, IEnumerable<Room> rooms, MersennePrimeRandom random)
         {
             /* 
             * Paths: Connects rooms together
@@ -97,13 +99,60 @@ namespace Dungeon.Generator.Generation.Generators
             * 
             */
 
-            var pathways = Enumerable.Empty<Pathway>();
-
             var directions = Enum.GetValues(typeof (Direction)).Cast<Direction>();
 
-            // for each room get the center wall points
-            rooms.SelectMany(room => directions.Select(room.GetCenterWallPoint))
-                 .Select(wallPoint => 1);
+            // for each room get pathway for each wall
+            var pathways = rooms.SelectMany(room => directions.Where(direction =>
+                                {
+                                    var location = new Point(room.X, room.Y) {Direction = direction};
+                                    return location.OnEdge(map, direction);
+                                })
+                                .Select(direction =>
+                                    new Pathway
+                                    {
+                                        Direction = direction,
+                                        Start = room
+                                    }
+                                ))
+                                // now that we have 4 * n where n is the number of rooms
+                                // parallelization seems like a good idea
+                                .AsParallel()
+                                .Where(pathway =>
+                                {
+                                    var startRoom = pathway.Start;
+
+                                    var ourGridX = startRoom.X/MaxRoomSize;
+                                    var ourGridY = startRoom.Y/MaxRoomSize;
+
+                                    // rooms that are adjacent to us
+                                    var adjacentRoom = rooms.FirstOrDefault(room =>
+                                    {
+                                        var roomGridX = room.X/MaxRoomSize;
+                                        var roomGridY = room.Y/MaxRoomSize;
+                                        switch (pathway.Direction)
+                                        {
+                                            case Direction.N:
+                                                return roomGridY - 1 == ourGridY;
+                                            case Direction.E:
+                                                return roomGridX + 1 == ourGridX;
+                                            case Direction.S:
+                                                return roomGridY + 1 == ourGridY;
+                                            case Direction.W:
+                                                return roomGridX - 1 == ourGridX;
+                                            default:
+                                                throw new ArgumentOutOfRangeException();
+                                        }
+                                    });
+
+                                    if (!Equals(adjacentRoom, default(Room)))
+                                    {
+                                        pathway.End = adjacentRoom;
+                                        pathway.Carve(map);
+                                    }
+
+                                    return !Equals(adjacentRoom, default(Room));
+                                });
+                                                
 
             /*
             * connect rooms
@@ -117,10 +166,10 @@ namespace Dungeon.Generator.Generation.Generators
             *        look for another feature
             */
 
-            return pathways;
+            return pathways.ToArray();
         }
 
-        private IEnumerable<Item> PlaceItems(ITileMap map, IEnumerable<Room> rooms, MersennePrimeRandom random)
+        private Item[] PlaceItems(ITileMap map, IEnumerable<Room> rooms, MersennePrimeRandom random)
         {
             // place entrance at a random point in the center room
             rooms.First().PlaceItem(Item.Entrance);
@@ -160,7 +209,7 @@ namespace Dungeon.Generator.Generation.Generators
                 );
             });
 
-            return items;
+            return items.ToArray();
         }
 
         /// <summary>
