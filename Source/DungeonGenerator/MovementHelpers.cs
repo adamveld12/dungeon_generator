@@ -15,6 +15,7 @@ namespace Dungeon.Generator
             { Direction.W, new Point(-1, 0) },
         };
 
+
         public static Point GetCenterWallPoint(this Room room, Direction direction, int gridSize)
         {
             var delta = MovementDeltas[direction];
@@ -35,6 +36,12 @@ namespace Dungeon.Generator
             }
         }
 
+        public static Point GetCenterWallPoint(this Point location, Direction direction, int gridSize)
+        {
+            var delta = MovementDeltas[direction];
+            var center = location.FromGrid(gridSize) + (gridSize/2);
+            return (delta*(gridSize/2)) + center;
+        }
         /// <summary>
         /// Gets the normal point for the given direction
         /// </summary>
@@ -193,6 +200,25 @@ namespace Dungeon.Generator
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        /// <summary>
+        /// If the given point can move 1 step in the direction specified
+        /// </summary>
+        /// <param name="point"></param>
+        /// <param name="direction"></param>
+        /// <param name="map"></param>
+        /// <returns></returns>
+        public static bool CanMove<T>(this Point point, Direction direction, T[,] map)
+        {
+            var newLocation = point.Move(direction);
+
+            return map.Contains(newLocation);
+        }
+
+        public static bool Contains<T>(this T[,] map, Point location)
+        {
+            return location.X >= 0 && location.X < map.GetLength(0) && location.Y >= 0 && location.Y < map.GetLength(1);
         }
 
         /// <summary>

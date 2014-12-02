@@ -1,4 +1,4 @@
-using Dungeon.Generator.Generation.Generators;
+using Dungeon.Generator.Generation.Generators.GridBased;
 using Dungeon.Generator.Navigation;
 
 namespace Dungeon.Generator.Generation
@@ -10,7 +10,7 @@ namespace Dungeon.Generator.Generation
             var map = CreateMap(size);
             var random = new MersennePrimeRandom(seed);
 
-            var strategy = new RoomGeneratorStrategy(random, map);
+            var strategy = new GridBased(random, map);//new RoomGeneratorStrategy(random, map);
             strategy.Execute();
 
             return map;

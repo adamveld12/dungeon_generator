@@ -34,6 +34,9 @@ namespace Dungeon.Generator.Generation.Generators.GridBased
         {
             switch (corridorType)
             {
+                case CorridorType.OneWayCorridor:
+                    yield return direction;
+                    break;
                 case CorridorType.LeftTurnCorridor:
                     yield return direction.TurnLeft();
                     break;
@@ -76,15 +79,36 @@ namespace Dungeon.Generator.Generation.Generators.GridBased
         }
 
 
-        public static void Carve(this Feature feature, ITileMap map, int gridSize)
+        public static void CarveCorridor(this Feature feature, CorridorType type, ITileMap map, int gridSize)
         {
-            var featureType = feature.Type;
+            var location = feature.Location.FromGrid(gridSize);
+            var direction = feature.Direction;
+            switch (type)
+            {
+                case CorridorType.OneWayCorridor:
+                    if(direction == Direction.N || direction == Direction.S)
+                        map.Carve(location + new Point(gridSize/2, 1), 1, gridSize, 1);
+                    else 
+                        map.Carve(location + new Point(1, gridSize/2), gridSize, 1, 1);
+                    break;
+                case CorridorType.TwoWayCorridor:
+                    break;
+                case CorridorType.ThreeWayCorridor:
+                    break;
+                case CorridorType.FourWayCorridor:
+                    break;
+                case CorridorType.LeftTurnCorridor:
+                    break;
+                case CorridorType.RightTurnCorridor:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException("type");
+            }
         }
 
-
-        private static void CarveRoom(Point location, ITileMap map, int gridSize)
+        public static void CarveRoom(this Feature feature, ITileMap map, int gridSize)
         {
-            MovementHelpers.Carve(map, location.FromGrid(gridSize) + 1, gridSize - 1, gridSize - 1, 1);
+            MovementHelpers.Carve(map, feature.Location.FromGrid(gridSize) + 1, gridSize - 1, gridSize - 1, 1);
         }
 
     }
