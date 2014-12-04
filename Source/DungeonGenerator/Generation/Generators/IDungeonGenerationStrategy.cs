@@ -1,31 +1,17 @@
-using System.Collections.Generic;
 using Dungeon.Generator.Navigation;
 
 namespace Dungeon.Generator.Generation.Generators
 {
     public interface IDungeonGenerationStrategy
     {
-        void Execute(MersennePrimeRandom random, ITileMap map);
+        void Execute();
     }
 
 
     public class MazeGeneratorStrategy : IDungeonGenerationStrategy
     {
-        public void Execute(MersennePrimeRandom random, ITileMap map)
+        public void Execute()
         {
-            
-            var drillers = new List<Point>()
-            {
-                new Point()
-            };
-
-            while (drillers.Count > 0)
-            {
-
-
-                
-            }
-
             /**
 
             drillers.push_back(make_pair(maze_size_x/2,maze_size_y/2)); 

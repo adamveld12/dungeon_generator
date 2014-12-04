@@ -57,18 +57,13 @@
   <ItemGroup>
     <Compile Include="Generation\Generator.cs" />
     <Compile Include="Generation\Generators\IDungeonGenerationStrategy.cs" />
-    <Compile Include="Generation\Generators\MapMeta.cs" />
-    <Compile Include="Generation\Generators\RoomFirstGeneratorStrategy.cs" />
+    <Compile Include="Generation\Generators\RoomGeneratorStrategy.cs" />
     <Compile Include="Generation\MapSize.cs" />
-    <Compile Include="Navigation\Direction.cs" />
+    <Compile Include="Direction.cs" />
     <Compile Include="Dungeon.cs" />
-    <Compile Include="Navigation\Item.cs" />
-    <Compile Include="Navigation\ITileMap.cs" />
+    <Compile Include="ITileMap.cs" />
     <Compile Include="Generation\MersennePrimeRandom.cs" />
-    <Compile Include="Navigation\MapEditorTools.cs" />
-    <Compile Include="Navigation\Pathway.cs" />
-    <Compile Include="Navigation\Point.cs" />
-    <Compile Include="Navigation\Room.cs" />
+    <Compile Include="Point.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
