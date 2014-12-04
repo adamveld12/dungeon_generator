@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Net.Configuration;
+using Dungeon.Generator.Generation.Generators;
 using Dungeon.Generator.Navigation;
 
 namespace Dungeon.Generator
@@ -87,9 +89,16 @@ namespace Dungeon.Generator
         /// <returns></returns>
         public static bool Contains(this ITileMap map, Point location)
         {
+            return location.X >= 0 && location.X < map.Width && location.Y >= 0 && location.Y < map.Height;
+        }
 
-            return location.X >= 0 && location.X < map.Width
-                   && location.Y >= 0 && location.Y < map.Height;
+        public static bool ContainsRoom(this ITileMap map, int gridSize, Point location)
+        {
+            for(int x = location.X; x < location.X + gridSize; x++)
+                for(int y = location.Y; y < location.Y + gridSize; y++)
+                    if (map[x, y] != 0)
+                        return true;
+            return false;
         }
 
         /// <summary>
@@ -100,7 +109,7 @@ namespace Dungeon.Generator
         public static Direction TurnLeft(this Direction direction)
         {
             var newDirection = (int)(direction - 1);
-            newDirection = newDirection%((int) Direction.Min);
+            newDirection = Math.Max(newDirection, ((int) Direction.Min));
             return (Direction) newDirection;
         }
 
@@ -114,6 +123,48 @@ namespace Dungeon.Generator
             var newDirection = (int)(direction + 1);
             newDirection = newDirection%((int) Direction.Max);
             return (Direction) newDirection;
+        }
+
+        /// <summary>
+        /// Carves a room out of the <see cref="ITileMap"/>
+        /// </summary>
+        /// <param name="room"></param>
+        /// <param name="map"></param>
+        /// <param name="gridSize"></param>
+        public static void Carve(this Room room, ITileMap map, int gridSize)
+        {
+            switch (room.Type)
+            {
+                case RoomType.Room:
+                    Carve(map, room.Location.FromGrid(gridSize) + 1, gridSize-1, gridSize-1, 1);
+                    break;
+                case RoomType.Corridor:
+                    break;
+                case RoomType.LeftTurn:
+                    break;
+                case RoomType.RightTurn:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        /// <summary>
+        /// Carves a box into the map
+        /// </summary>
+        /// <param name="map"></param>
+        /// <param name="location"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <param name="type"></param>
+        public static void Carve(this ITileMap map, Point location, int width, int height, ushort type)
+        {
+            if (width < 0 || height < 0 || !map.Contains(location))
+                throw new ArgumentOutOfRangeException();
+
+            for (int x = location.X; x < location.X + width; x++)
+                for (int y = location.Y; y < location.Y + height; y++)
+                    map[x, y] = type;
         }
     }
 }

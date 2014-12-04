@@ -63,6 +63,7 @@
     <Compile Include="Dungeon.cs" />
     <Compile Include="ITileMap.cs" />
     <Compile Include="Generation\MersennePrimeRandom.cs" />
+    <Compile Include="MovementHelpers.cs" />
     <Compile Include="Point.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

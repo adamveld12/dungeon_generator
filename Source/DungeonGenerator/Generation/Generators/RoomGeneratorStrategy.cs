@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Dungeon.Generator.Navigation;
@@ -32,7 +30,7 @@ namespace Dungeon.Generator.Generation.Generators
             var unprocessed = new Queue<Room>();
             unprocessed.Enqueue(centerRoom);
 
-            var directions = Enum.GetValues(typeof (Direction)).Cast<Direction>().ToList();
+            var directions = DirectionHelpers.Values();
 
             // for each unprocessed room
             while (unprocessed.Count > 0)
@@ -47,37 +45,22 @@ namespace Dungeon.Generator.Generation.Generators
                     .Where(x => {
                         // get the new room location
                         var newRoomLocation = room.Location.Move(x);
-                        // allow rooms to have custom logic dictating which directions they go in
-                        // carve our room, plus outlets for the directions if necessary
-                        switch (room.Type)
-                        {
-                            case RoomType.Room:
-                                break;
-                            case RoomType.Corridor:
-                                break;
-                            case RoomType.LeftTurn:
-                                break;
-                            case RoomType.RightTurn:
-                                break;
-                            default:
-                                throw new ArgumentOutOfRangeException();
-                        }
+
+                        return _map.Contains(newRoomLocation.FromGrid(GridSize)) &&
+                               !_map.ContainsRoom(GridSize, newRoomLocation);
                     })
                     // spawn rooms in those directions
-                    .Select(direction => {
-                        // determine the room type
-                        var roomType = RoomType.Room;
-                        return new Room {
-                            Location = room.Location.Move(direction),
-                        };
-                    });
+                    .Select(direction => Room.CreateRoom(room.Location.Move(direction), direction));
 
-                newRooms.Aggregate(unprocessed, (acc, room) => {
+
+                newRooms.Aggregate(unprocessed, (acc, spawnedRoom) => {
                     // add them to the unprocessed list
-                    acc.Enqueue(room);
+                    acc.Enqueue(spawnedRoom);
                     return acc;
                 });
 
+                // carve our room
+                room.Carve(_map, GridSize);
             }
         }
 
@@ -89,20 +72,25 @@ namespace Dungeon.Generator.Generation.Generators
         public RoomType Type { get; set; }
         public Point Size { get; set; }
         public Point Location { get; set; }
-
+        public Direction Cardinality { get; set; }
+ 
         public static Room CreateCorridor(Direction direction, int length)
         {
             return new Room {
                 Size = direction.Normal() * length,
-                Type = RoomType.Corridor
+                Type = RoomType.Corridor,
+                Cardinality = direction
             };
         }
 
-        public static Room CreateRoom(int width, int height)
+        public static Room CreateRoom(Point location, Direction direction)
         {
             return new Room {
-                Size = new Point(width, height),
-                Type = RoomType.Room
+                Type = RoomType.Room,
+                Cardinality = direction,
+                Location = location
+
+
             };
         }
     }
