@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Net.Configuration;
-using Dungeon.Generator.Generation.Generators;
+using Dungeon.Generator.Generation.Generators.RoomBased;
 using Dungeon.Generator.Navigation;
 
 namespace Dungeon.Generator
@@ -15,6 +14,26 @@ namespace Dungeon.Generator
             { Direction.E, new Point(1, 0)  },
             { Direction.W, new Point(-1, 0) },
         };
+
+        public static Point GetCenterWallPoint(this Room room, Direction direction, int gridSize)
+        {
+            var delta = MovementDeltas[direction];
+            var center = room.Location.FromGrid(gridSize) + (gridSize/2);
+
+            switch (room.Type)
+            {
+                case RoomType.Room:
+                    return (delta*(gridSize/2)) + center;
+                case RoomType.Corridor:
+                    return Point.Zero;
+                case RoomType.LeftTurn:
+                    return Point.Zero;
+                case RoomType.RightTurn:
+                    return Point.Zero;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
 
         /// <summary>
         /// Gets the normal point for the given direction
@@ -90,6 +109,18 @@ namespace Dungeon.Generator
         public static bool Contains(this ITileMap map, Point location)
         {
             return location.X >= 0 && location.X < map.Width && location.Y >= 0 && location.Y < map.Height;
+        }
+
+        /// <summary>
+        /// If the given point is within the <see cref="ITileMap"/> bounds
+        /// </summary>
+        /// <param name="map"></param>
+        /// <param name="location"></param>
+        /// <param name="gridSize"></param>
+        /// <returns></returns>
+        public static bool Contains(this ITileMap map, Point location, int gridSize)
+        {
+            return location.X >= 0 && location.X < map.Width/gridSize && location.Y >= 0 && location.Y < map.Height/gridSize;
         }
 
         public static bool ContainsRoom(this ITileMap map, int gridSize, Point location)
