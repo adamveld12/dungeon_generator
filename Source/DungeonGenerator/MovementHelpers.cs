@@ -140,7 +140,7 @@ namespace Dungeon.Generator
         public static Direction TurnLeft(this Direction direction)
         {
             var newDirection = (int)(direction - 1);
-            newDirection = Math.Max(newDirection, ((int) Direction.Min));
+            newDirection = Math.Min(newDirection, ((int) Direction.N));
             return (Direction) newDirection;
         }
 
@@ -152,7 +152,7 @@ namespace Dungeon.Generator
         public static Direction TurnRight(this Direction direction)
         {
             var newDirection = (int)(direction + 1);
-            newDirection = newDirection%((int) Direction.Max);
+            newDirection = newDirection % ((int) Direction.Max);
             return (Direction) newDirection;
         }
 
@@ -167,9 +167,24 @@ namespace Dungeon.Generator
             switch (room.Type)
             {
                 case RoomType.Room:
-                    Carve(map, room.Location.FromGrid(gridSize) + 1, gridSize-1, gridSize-1, 1);
+                    Carve(map, room.Location.FromGrid(gridSize) + 1, gridSize - 1, gridSize - 1, 1);
                     break;
                 case RoomType.Corridor:
+                    var delta = MovementDeltas[room.Cardinality] * -1;
+                    switch (room.Cardinality)
+                    {
+                        case Direction.N:
+                        case Direction.S:
+                            Carve(map, room.Location.FromGrid(gridSize) + new Point(gridSize/2, 0),  1,  gridSize,  1);
+                            break;
+                        case Direction.E:
+                        case Direction.W:
+                            Carve(map, room.Location.FromGrid(gridSize) + new Point(0, gridSize/2),  gridSize,  1,  1);
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                    var carveOriginOffset = (delta * (gridSize/2));
                     break;
                 case RoomType.LeftTurn:
                     break;

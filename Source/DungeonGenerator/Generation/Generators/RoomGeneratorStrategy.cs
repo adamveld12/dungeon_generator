@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.AccessControl;
 using Dungeon.Generator.Generation.Generators.RoomBased;
 using Dungeon.Generator.Navigation;
 
@@ -47,27 +48,33 @@ namespace Dungeon.Generator.Generation.Generators
 
                 // decide which directions to spawn rooms in
                 var newRooms = directions
-                    // if that direction is against the edge of the map, don't spawn there
-                    .Where(x => room.Location.CanMove(x, _map))
-                    // carve the outlets for the new rooms
                     .Where(x => {
                         // get the new room location
                         var newRoomLocation = room.Location.Move(x);
 
                         var canSpawnRoomAtLocation = _map.Contains(newRoomLocation, GridSize) 
                                                   && _roomGrid[newRoomLocation.X, newRoomLocation.Y] == default(Room);
+
                         var shouldSpawn = Chance(75 - totalCount);
+
+                        if (room.Type == RoomType.Corridor)
+                            return shouldSpawn && x == room.Cardinality && canSpawnRoomAtLocation;
 
                         // can spawn if its a valid location and there is a chance to spawn said room
                         return shouldSpawn && canSpawnRoomAtLocation;
                     })
                     // spawn rooms in those directions
-                    .Select(direction =>
-                    {
+                    .Select(direction => {
                         var newLocation = room.Location.Move(direction);
+
+                        // carve the outlets for the new rooms
                         _map.Carve(room.GetCenterWallPoint(direction, GridSize), 1, 1, 1);
+
                         totalCount++;
-                        return _roomGrid[newLocation.X, newLocation.Y] = Room.CreateRoom(newLocation, direction);
+
+                         Room newRoom = Room.CreateRoom(newLocation, direction);
+                        
+                        return _roomGrid[newLocation.X, newLocation.Y] = newRoom;
                     });
 
 
@@ -76,6 +83,8 @@ namespace Dungeon.Generator.Generation.Generators
                     acc.Enqueue(spawnedRoom);
                     return acc;
                 });
+
+
 
                 // carve our room
                 room.Carve(_map, GridSize);

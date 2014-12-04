@@ -7,9 +7,10 @@ namespace Dungeon.Generator.Generation.Generators.RoomBased
         public Point Location { get; set; }
         public Direction Cardinality { get; set; }
  
-        public static Room CreateCorridor(Direction direction, int length)
+        public static Room CreateCorridor(Point location, Direction direction, int length)
         {
             return new Room {
+                Location = location,
                 Size = direction.Normal() * length,
                 Type = RoomType.Corridor,
                 Cardinality = direction
