@@ -1,4 +1,4 @@
-namespace Dungeon.Generator.Navigation
+namespace Dungeon.Generator
 {
     public enum Direction : byte
     {
@@ -9,4 +9,5 @@ namespace Dungeon.Generator.Navigation
         Max = W,
         Min = N
     }
+
 }

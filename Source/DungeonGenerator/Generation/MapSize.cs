@@ -16,44 +16,44 @@ namespace Dungeon.Generator.Generation
     {
         public static Point ToDimensions(this MapSize mapSize)
         {
-            var dimensions = Point.Zero;
+            Point dimensions;
 
             switch (mapSize)
             {
                 case MapSize.Tiny:
                     dimensions = new Point { 
-                        X = 64,
-                        Y = 64
+                        X = 60,
+                        Y = 60
                     };
                     break;
                 case MapSize.Small:
                     dimensions = new Point { 
-                        X = 128,
-                        Y = 128 
+                        X = 120,
+                        Y = 120 
                     };
                     break;
                 case MapSize.Medium:
                     dimensions = new Point { 
-                        X = 256,
-                        Y = 256 
+                        X = 240,
+                        Y = 240 
                     };
                     break;
                 case MapSize.Large:
                     dimensions = new Point { 
-                        X = 1024,
-                        Y = 1024 
+                        X = 1200,
+                        Y = 1200 
                     };
                     break;
                 case MapSize.Enormous:
                     dimensions = new Point { 
-                        X = 2048,
-                        Y = 2048 
+                        X = 1800,
+                        Y = 1800 
                     };
                     break;
                 case MapSize.Biblical:
                     dimensions = new Point { 
-                        X = 8128,
-                        Y = 8128
+                        X = 8400,
+                        Y = 8400
                     };
                     break;
                 default:
