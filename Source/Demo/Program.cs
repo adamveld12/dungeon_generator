@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 using Dungeon.Generator.Navigation;
 using Dungeon.Generator.Generation;
-using Dungeon.Generator.Generation.Generators;
 
 namespace Demo
 {
@@ -16,9 +15,9 @@ namespace Demo
 
             const MapSize size = MapSize.Tiny;
             var seed = 1024u;
-            var generator = new Generator(new RoomFirstGeneratorStrategy());
+            var generator = new Generator();
 
-            var mapDimensions = MapEditorTools.ToPoint(size);
+            var mapDimensions = size.ToDimensions();
             Console.SetWindowSize(Math.Min(mapDimensions.X + 7, 132), Math.Min(mapDimensions.Y + 17, 132));
             while (true)
             {
