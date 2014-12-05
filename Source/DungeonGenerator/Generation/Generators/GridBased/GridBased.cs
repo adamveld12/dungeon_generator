@@ -104,7 +104,8 @@ namespace Dungeon.Generator.Generation.Generators.GridBased
                             else
                             {
                                 newFeature.Type = FeatureType.Corridor;
-                                newFeature.CorridorType = corridorTypes.FirstOrDefault(x => Chance(10)) ?? CorridorType.OneWayCorridor;
+                                newFeature.CorridorType = CorridorType.ThreeWayCorridor;
+                                    //corridorTypes.FirstOrDefault(x => Chance(10)) ?? CorridorType.OneWayCorridor;
                             }
 
                             // set the feature in our datastructure
