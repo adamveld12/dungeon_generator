@@ -50,6 +50,15 @@ namespace Dungeon.Generator.Generation.Generators.GridBased
                         .Select(wallDirection => {
                             // move to that location
                             var newLocation = featureLocation.Move(wallDirection);
+                             var newFeature = new Feature
+                             {
+                                 Direction = wallDirection,
+                                 Location = newLocation
+                             };
+
+                            // set the feature in our datastructure
+                             _features[newLocation.X, newLocation.Y] = newFeature;
+
                             // a 65% chance to spawn a room
                             if (Chance(65))
                             {
@@ -77,8 +86,35 @@ namespace Dungeon.Generator.Generation.Generators.GridBased
                 else if (feature.Type == FeatureType.Corridor)
                 {
                     // 100% chance of it being a one way
+                    CorridorType.ThreeWayCorridor.Walls(feature.Direction)
+                        // maybe check if all directions are clear for movement, and if not pick a different corridor type
+                        .Where(newDirection => featureLocation.CanMove(newDirection, _map))
 
+                        .Select(direction =>
+                        {
+                            var newLocation = featureLocation.Move(direction);
+                            var newFeature = new Feature
+                            {
+                                Location = newLocation,
+                                Direction = direction
+                            };
+
+                            // set the feature in our datastructure
+                             _features[newLocation.X, newLocation.Y] = newFeature;
+
+
+                            // 20% chance to spawn another corridor
+                            if (Chance(20))
+                                newFeature.Type = FeatureType.Corridor;
+                            // otherwise spawn a room
+                            else
+                                newFeature.Type = FeatureType.Room;
+
+                            return newFeature;
+                        });
                 }
+
+                feature.Carve(_map, GridSize);
             /**
              *  if room
              *    for each wall

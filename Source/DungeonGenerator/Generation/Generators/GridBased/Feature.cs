@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Dungeon.Generator.Navigation;
 
 namespace Dungeon.Generator.Generation.Generators.GridBased
 {
@@ -73,5 +74,18 @@ namespace Dungeon.Generator.Generation.Generators.GridBased
                 default: throw new ArgumentOutOfRangeException("feature");
             }
         }
+
+
+        public static void Carve(this Feature feature, ITileMap map, int gridSize)
+        {
+            var featureType = feature.Type;
+        }
+
+
+        private static void CarveRoom(Point location, ITileMap map, int gridSize)
+        {
+            MovementHelpers.Carve(map, location.FromGrid(gridSize) + 1, gridSize - 1, gridSize - 1, 1);
+        }
+
     }
 }
