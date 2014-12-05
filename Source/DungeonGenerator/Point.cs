@@ -14,6 +14,9 @@ namespace Dungeon.Generator
             Y = y;
         }
 
+        public static Point operator /(Point a, int scalar) 
+        { return new Point(a.X / scalar, a.Y / scalar); }
+
         public static Point operator *(Point a, int scalar) 
         { return new Point(a.X * scalar, a.Y * scalar); }
 
