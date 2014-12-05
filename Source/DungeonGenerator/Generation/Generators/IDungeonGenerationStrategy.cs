@@ -7,7 +7,6 @@ namespace Dungeon.Generator.Generation.Generators
         void Execute();
     }
 
-
     public class MazeGeneratorStrategy : IDungeonGenerationStrategy
     {
         public void Execute()
