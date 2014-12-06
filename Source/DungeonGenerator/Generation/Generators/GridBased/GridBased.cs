@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Remoting.Messaging;
@@ -60,6 +61,8 @@ namespace Dungeon.Generator.Generation.Generators.GridBased
 
             _features[mapCenter.X, mapCenter.Y] = centerRoom;
 
+
+            var corridorTypes = Enum.GetValues(typeof (CorridorType)).Cast<CorridorType?>();
             // add to unprocessed
             var unprocessed = new Queue<Feature>(1024);
             unprocessed.Enqueue(centerRoom);
@@ -97,8 +100,12 @@ namespace Dungeon.Generator.Generation.Generators.GridBased
 
                             // a 65% chance to spawn a room
                             if (Chance(65)) newFeature.Type = FeatureType.Room;
-                            // a 33% chance to spawn a corridor
-                            else  newFeature.Type = FeatureType.Corridor;
+                                // a 33% chance to spawn a corridor
+                            else
+                            {
+                                newFeature.Type = FeatureType.Corridor;
+                                newFeature.CorridorType = corridorTypes.FirstOrDefault(x => Chance(10)) ?? CorridorType.OneWayCorridor;
+                            }
 
                             // set the feature in our datastructure
                             _features[newLocation.X, newLocation.Y] = newFeature;
@@ -114,9 +121,9 @@ namespace Dungeon.Generator.Generation.Generators.GridBased
                 // else if corridor
                 else if (feature.Type == FeatureType.Corridor)
                 {
-                    var corridorType = CorridorType.OneWayCorridor;
+
                     // 100% chance of it being a one way
-                    corridorType.Walls(feature.Direction)
+                    feature.CorridorType.Walls(feature.Direction)
                         // maybe check if all directions are clear for movement, and if not pick a different corridor type
                         .Where(newDirection => featureLocation.CanMove(newDirection, _features))
                         .Where(wallDirection => {
@@ -132,7 +139,11 @@ namespace Dungeon.Generator.Generation.Generators.GridBased
                             };
 
                             // 20% chance to spawn another corridor
-                            if (Chance(20)) newFeature.Type = FeatureType.Corridor;
+                            if (Chance(20))
+                            {
+                                newFeature.Type = FeatureType.Corridor;
+                                newFeature.CorridorType = corridorTypes.FirstOrDefault(x => Chance(10)) ?? CorridorType.OneWayCorridor;
+                            }
                             // otherwise spawn a room
                             else newFeature.Type = FeatureType.Room;
 
@@ -146,10 +157,7 @@ namespace Dungeon.Generator.Generation.Generators.GridBased
                             acc.Enqueue(newFeature);
                             return acc;
                         });
-
-                    //feature.CarveCorridor(corridorType, _map, GridSize);
                 }
-
                 
             } while (unprocessed.Count > 0);
 
@@ -161,8 +169,12 @@ namespace Dungeon.Generator.Generation.Generators.GridBased
             {
                 var location = feature.Location;
                 var surroundingFeatures = Surrounding(feature);
+                var type = feature.Type;
 
-                if(surroundingFeatures.)
+                if(type == FeatureType.Room)
+                    feature.CarveRoom(_map, GridSize);
+                else if (type == FeatureType.Corridor)
+                    feature.CarveCorridor(_map, GridSize);
 
             }
         }

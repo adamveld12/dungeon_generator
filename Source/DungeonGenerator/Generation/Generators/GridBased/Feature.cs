@@ -7,6 +7,7 @@ namespace Dungeon.Generator.Generation.Generators.GridBased
     public struct Feature
     {
         public FeatureType Type;
+        public CorridorType CorridorType;
         public Point Location;
         public Direction Direction;
     }
@@ -14,7 +15,6 @@ namespace Dungeon.Generator.Generation.Generators.GridBased
     public enum CorridorType
     {
         OneWayCorridor = 0,
-        TwoWayCorridor,
         ThreeWayCorridor,
         FourWayCorridor,
         LeftTurnCorridor,
@@ -79,23 +79,41 @@ namespace Dungeon.Generator.Generation.Generators.GridBased
         }
 
 
-        public static void CarveCorridor(this Feature feature, CorridorType type, ITileMap map, int gridSize)
+        public static void CarveCorridor(this Feature feature, ITileMap map, int gridSize)
         {
             var location = feature.Location.FromGrid(gridSize);
             var direction = feature.Direction;
-            switch (type)
+            switch (feature.CorridorType)
             {
+                // corridor without turns
                 case CorridorType.OneWayCorridor:
                     if(direction == Direction.N || direction == Direction.S)
                         map.Carve(location + new Point(gridSize/2, 1), 1, gridSize, 1);
                     else 
                         map.Carve(location + new Point(1, gridSize/2), gridSize, 1, 1);
                     break;
-                case CorridorType.TwoWayCorridor:
-                    break;
+                // corridor that turns left and right
                 case CorridorType.ThreeWayCorridor:
+                    if (direction == Direction.N || direction == Direction.S) {
+                        // entry
+                        map.Carve(location + new Point(gridSize/2, 1), 1, gridSize/2, 1);
+                        // fork
+                        map.Carve(location + new Point(1, gridSize/2), gridSize, 1, 1);
+                    }
+                    else {
+                        // entry
+                        map.Carve(location + new Point(1, gridSize/2), gridSize/2, 1, 1);
+                        // fork
+                        map.Carve(location + new Point(gridSize/2, 1), 1, gridSize, 1);
+                    }
+
                     break;
+                // a cross
                 case CorridorType.FourWayCorridor:
+                    // entry
+                    map.Carve(location + new Point(gridSize/2, 1), 1, gridSize, 1);
+                    // fork
+                    map.Carve(location + new Point(1, gridSize/2), gridSize, 1, 1);
                     break;
                 case CorridorType.LeftTurnCorridor:
                     break;
@@ -108,7 +126,11 @@ namespace Dungeon.Generator.Generation.Generators.GridBased
 
         public static void CarveRoom(this Feature feature, ITileMap map, int gridSize)
         {
-            MovementHelpers.Carve(map, feature.Location.FromGrid(gridSize) + 1, gridSize - 1, gridSize - 1, 1);
+            map.Carve(feature.Location.FromGrid(gridSize) + 1, gridSize - 1, gridSize - 1, 1);
+
+            // carve an outlet from where we came from
+            var wall = feature.Location.GetCenterWallPoint(feature.Direction.TurnLeft().TurnLeft(), gridSize);
+            map.Carve(wall, 1, 1, 1);
         }
 
     }
