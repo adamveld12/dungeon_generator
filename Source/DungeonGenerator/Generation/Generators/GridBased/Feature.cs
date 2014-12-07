@@ -10,8 +10,8 @@ namespace Dungeon.Generator.Generation.Generators.GridBased
         OneWayCorridor = 0,
         ThreeWayCorridor,
         FourWayCorridor,
-        LeftTurnCorridor,
-        RightTurnCorridor
+//        LeftTurnCorridor,
+//        RightTurnCorridor
     }
 
     public enum FeatureType : byte
@@ -74,65 +74,83 @@ namespace Dungeon.Generator.Generation.Generators.GridBased
             var direction = GetDirectionOfOrigin();
             var offset = gridSize/2;
 
-            switch (CorridorType)
+            // corridor without turns
+            if (CorridorType == CorridorType.OneWayCorridor)
             {
-                // corridor without turns
-                case CorridorType.OneWayCorridor:
-                    var dirNormal = direction.TurnLeft().Normal();
-                    dirNormal.X = Math.Abs(dirNormal.X);
-                    dirNormal.Y = Math.Abs(dirNormal.Y);
-                    var locationDelta = new Point(dirNormal.X * offset, dirNormal.Y * offset);
+                var carveNormal = direction.Normal().Abs();
+                var carveDelta = carveNormal*gridSize;
+                carveDelta.X = Math.Max(carveDelta.X, 1);
+                carveDelta.Y = Math.Max(carveDelta.Y, 1);
 
-                    var carveNormal = direction.Normal();
-                    carveNormal.X = Math.Abs(carveNormal.X);
-                    carveNormal.Y = Math.Abs(carveNormal.Y);
-
-                    var carveDelta = carveNormal*gridSize;
-                    carveDelta.X = Math.Max(carveDelta.X, 1);
-                    carveDelta.Y = Math.Max(carveDelta.Y, 1);
-
-                    map.Carve(location + locationDelta, carveDelta.X, carveDelta.Y, 1);
-//                    if(direction == Direction.N || direction == Direction.S)
-//                        map.Carve(location + new Point(gridSize/2, 0), 1, gridSize, 1);
-//                    else 
-//                        map.Carve(location + new Point(0, gridSize/2), gridSize, 1, 1);
-                    break;
-                // corridor that turns left and right
-                case CorridorType.ThreeWayCorridor:
-                    if (direction == Direction.N || direction == Direction.S) {
-                        // entry
-                        map.Carve(location + new Point(gridSize/2, 0), 1, gridSize/2, 1);
-                        // fork
-                        map.Carve(location + new Point(0, gridSize/2), gridSize, 1, 1);
-                    }
-                    else {
-                        // entry
-                        map.Carve(location + new Point(0, gridSize/2), gridSize/2, 1, 1);
-                        // fork
-                        map.Carve(location + new Point(gridSize/2, 0), 1, gridSize, 1);
-                    }
-
-                    break;
-                // a cross
-                case CorridorType.FourWayCorridor:
-                    // entry
-                    map.Carve(location + new Point(gridSize/2, 1), 1, gridSize, 1);
-                    // fork
-                    map.Carve(location + new Point(1, gridSize/2), gridSize, 1, 1);
-                    break;
-                case CorridorType.LeftTurnCorridor:
-                    break;
-                case CorridorType.RightTurnCorridor:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException("type");
+                var dirNormal = direction.TurnLeft().Normal().Abs();
+                var locationDelta = dirNormal * offset;
+                map.Carve(location + locationDelta, carveDelta.X, carveDelta.Y, 1);
+                
             }
+                // corridor that turns left and right
+            else if (CorridorType == CorridorType.ThreeWayCorridor)
+            {
+                var entryNormal = direction.Normal().Abs();
+                var forkNormal = direction.TurnLeft().Normal().Abs();
+
+                if (direction == Direction.N)
+                {
+                    //entry from S
+                    map.Carve(location + new Point(gridSize/2, 0), 1, gridSize/2, 1);
+                    // fork E/W
+                    map.Carve(location + new Point(0, gridSize/2), gridSize, 1, 1);
+                }
+                else if (direction == Direction.S) {
+
+//                    // entry
+//                    var entryOffset = entryNormal*gridSize/2;
+//                    var entryCarve = entryNormal*gridSize/2;
+//                    entryCarve.X = Math.Max(entryCarve.X, 1);
+//                    entryCarve.Y = Math.Max(entryCarve.Y, 1);
+//
+//                    map.Carve(location + entryOffset, 1, gridSize/2, 1);
+//
+//                    // fork
+//                    var forkOffset = forkNormal*gridSize/2;
+//                    var forkCarve = entryNormal*gridSize/2;
+//                    forkCarve.X = Math.Max(forkCarve.X, 1);
+//                    forkCarve.Y = Math.Max(forkCarve.Y, 1);
+//
+//                    map.Carve(location + forkOffset, forkCarve.X, forkCarve.Y, 1);
+
+                    //entry from N
+                    map.Carve(location + new Point(gridSize/2, gridSize/2), 1, gridSize/2, 1);
+                    // fork E/W
+                    map.Carve(location + new Point(0, gridSize/2), gridSize, 1, 1);
+                }
+                else if (direction == Direction.E)
+                {
+                    // entry from W
+                    map.Carve(location + new Point(gridSize/2, gridSize/2), gridSize/2, 1, 1);
+                    // fork
+                    map.Carve(location + new Point(gridSize/2, 0), 1, gridSize, 1);
+                }
+                else if (direction == Direction.W)
+                {
+                    // entry from W
+                    map.Carve(location + new Point(0, gridSize/2), gridSize/2, 1, 1);
+                    // fork
+                    map.Carve(location + new Point(gridSize/2, 0), 1, gridSize, 1);
+                }
+            }
+            else if (CorridorType == CorridorType.FourWayCorridor)
+            {
+                // entry
+                map.Carve(location + new Point(gridSize/2, 1), 1, gridSize, 1);
+                // fork
+                map.Carve(location + new Point(1, gridSize/2), gridSize, 1, 1);
+            }
+            else
+                throw new InvalidOperationException();
         }
 
         private void CarveRoom(ITileMap map, int gridSize)
-        {
-            map.Carve(Location.FromGrid(gridSize) + 1, gridSize - 1, gridSize - 1, 1);
-        }
+        { map.Carve(Location.FromGrid(gridSize) + 1, gridSize - 1, gridSize - 1, 1); }
 
         public IEnumerable<Direction> ConnectionCardinality
         {
@@ -148,21 +166,23 @@ namespace Dungeon.Generator.Generation.Generators.GridBased
             {
                 case CorridorType.OneWayCorridor:
                     yield return direction;
+                    yield return direction.TurnLeft().TurnLeft();
                     break;
-                case CorridorType.LeftTurnCorridor:
-                    yield return direction.TurnLeft();
-                    break;
-                case CorridorType.RightTurnCorridor:
-                    yield return direction.TurnRight();
-                    break;
+//                case CorridorType.LeftTurnCorridor:
+//                    yield return direction.TurnLeft();
+//                    break;
+//                case CorridorType.RightTurnCorridor:
+//                    yield return direction.TurnRight();
+//                    break;
                 case CorridorType.ThreeWayCorridor:
                     yield return direction.TurnLeft();
                     yield return direction.TurnRight();
                     break;
                 case CorridorType.FourWayCorridor:
+                    yield return direction;
                     yield return direction.TurnLeft();
                     yield return direction.TurnRight();
-                    yield return direction;
+                    yield return direction.TurnRight().TurnRight();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException("corridorType");

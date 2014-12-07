@@ -78,8 +78,7 @@ namespace Dungeon.Generator.Generation.Generators.GridBased
                         {
                             newFeature.Type = FeatureType.Corridor;
                             // 20 percent chance for each corridor type
-                            newFeature.CorridorType = CorridorType.OneWayCorridor;
-                                //corridorTypes.ElementAt(_random.Next(0, corridorTypes.Length));
+                            newFeature.CorridorType = corridorTypes.ElementAt(_random.Next(0, corridorTypes.Length));
                         }
 
                         return newFeature;

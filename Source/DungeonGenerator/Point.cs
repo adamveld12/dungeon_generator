@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 
 namespace Dungeon.Generator
@@ -40,5 +41,7 @@ namespace Dungeon.Generator
         }
 
         #endregion
+
+        public Point Abs() { return new Point(Math.Abs(X), Math.Abs(Y)); }
     }
 }
