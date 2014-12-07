@@ -21,7 +21,7 @@ namespace Demo
             Console.SetWindowSize(Math.Min(mapDimensions.X + 7, 132), Math.Min(mapDimensions.Y + 17, 132));
             while (true)
             {
-                var dungeon = generator.GenerateMap(size, seed++);
+                var dungeon = generator.GenerateMap(mapDimensions.X, mapDimensions.Y, seed++);
                 Render(dungeon);
                 Thread.Sleep(100);
                 Console.WriteLine("Press 'enter' to see a new dungeon");

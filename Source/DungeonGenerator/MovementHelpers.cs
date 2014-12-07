@@ -5,7 +5,7 @@ using Dungeon.Generator.Navigation;
 
 namespace Dungeon.Generator
 {
-    public static class MovementHelpers
+    internal static class MovementHelpers
     {
         private static readonly Dictionary<Direction, Point> MovementDeltas = new Dictionary<Direction, Point>
         {

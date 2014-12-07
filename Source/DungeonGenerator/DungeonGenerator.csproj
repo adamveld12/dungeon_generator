@@ -55,8 +55,12 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DirectionHelpers.cs" />
     <Compile Include="Generation\Generator.cs" />
+    <Compile Include="Generation\Generators\GridBased\CorridorType.cs" />
     <Compile Include="Generation\Generators\GridBased\Feature.cs" />
+    <Compile Include="Generation\Generators\GridBased\FeatureHelpers.cs" />
+    <Compile Include="Generation\Generators\GridBased\FeatureType.cs" />
     <Compile Include="Generation\Generators\GridBased\GridBased.cs" />
     <Compile Include="Generation\Generators\IDungeonGenerationStrategy.cs" />
     <Compile Include="Generation\Generators\RoomBased\Room.cs" />

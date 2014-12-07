@@ -4,7 +4,7 @@ using System.Diagnostics;
 namespace Dungeon.Generator
 {
     [DebuggerDisplay("({X},{Y})")]
-    public struct Point
+    internal struct Point
     {
         public int X;
         public int Y;

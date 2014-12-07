@@ -2,7 +2,7 @@
 
 namespace Dungeon.Generator
 {
-    public class Dungeon : ITileMap
+    internal class Dungeon : ITileMap
     {
         private readonly int _width;
         private readonly int _height;

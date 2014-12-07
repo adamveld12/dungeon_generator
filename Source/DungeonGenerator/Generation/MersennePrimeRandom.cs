@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Dungeon.Generator
+namespace Dungeon.Generator.Generation
 {
     /// <summary>
     /// Implementation of Mersenne Twister random number generator

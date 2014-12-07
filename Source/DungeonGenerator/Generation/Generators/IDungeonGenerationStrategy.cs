@@ -1,4 +1,5 @@
-using Dungeon.Generator.Navigation;
+
+using System;
 
 namespace Dungeon.Generator.Generation.Generators
 {
@@ -11,6 +12,7 @@ namespace Dungeon.Generator.Generation.Generators
     {
         public void Execute()
         {
+            throw new NotImplementedException();
             /**
 
             drillers.push_back(make_pair(maze_size_x/2,maze_size_y/2)); 

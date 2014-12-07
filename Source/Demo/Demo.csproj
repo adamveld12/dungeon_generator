@@ -35,6 +35,7 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MapSizeExtensions.cs" />
     <Compile Include="Program.cs">
       <SubType>
       </SubType>

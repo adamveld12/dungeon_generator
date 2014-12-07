@@ -1,6 +1,6 @@
 namespace Dungeon.Generator.Generation.Generators.RoomBased
 {
-    public class Room
+    internal class Room
     {
         public RoomType Type { get; set; }
         public Point Size { get; set; }
