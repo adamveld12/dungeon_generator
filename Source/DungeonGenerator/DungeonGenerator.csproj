@@ -69,6 +69,7 @@
     <Compile Include="Generation\MapSize.cs" />
     <Compile Include="Direction.cs" />
     <Compile Include="Dungeon.cs" />
+    <Compile Include="Generation\MapSizeExtensions.cs" />
     <Compile Include="ITileMap.cs" />
     <Compile Include="Generation\MersennePrimeRandom.cs" />
     <Compile Include="MovementHelpers.cs" />

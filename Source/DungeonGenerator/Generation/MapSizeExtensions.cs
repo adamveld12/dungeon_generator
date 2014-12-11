@@ -2,7 +2,7 @@ using System;
 
 namespace Dungeon.Generator.Generation
 {
-    internal struct Dimension
+    public struct Dimension
     {
         public int X;
         public int Y;
