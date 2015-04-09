@@ -6,7 +6,7 @@ namespace Demo
 {
     public class Program
     {
-        const uint Seed = 1024u;
+        static uint Seed = 1024u;
         const MapSize size = MapSize.Small;
 
         static readonly Display display = new Display();

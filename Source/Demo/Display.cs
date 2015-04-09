@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
+using Dungeon.Generator;
 
 namespace Demo
 {
@@ -16,8 +18,19 @@ namespace Demo
             var width = map.Width;
             var height = map.Height;
 
-            Console.SetWindowSize(Math.Min(width + 7, 132), Math.Min(height + 17, 132));
-            Console.SetBufferSize(width, height);
+            try
+            {
+                var winWidth = Math.Min(width + 7, 132);
+                var winHeight = Math.Min(height + 17, 132);
+
+                Console.SetWindowSize(winWidth, winHeight);
+            }
+            catch
+            {
+                Debug.Fail("Set console font size to a mono spaced font.");
+            }
+
+            Console.SetBufferSize(width + 7, height + 17);
 
             for (var x = 0; x < width; x++)
             {
@@ -28,12 +41,12 @@ namespace Demo
                     Console.ForegroundColor = ConsoleColor.White;
                     char output;
 
-                    switch (tile)
+                    switch (tile.Type)
                     {
-                        case 0:
+                        case TileType.Wall:
                             output = '\u256C';
                             break;
-                        case 1:
+                        case TileType.Floor:
                             Console.ForegroundColor = ConsoleColor.Gray;
                             output = '\u2591';
                             break;
