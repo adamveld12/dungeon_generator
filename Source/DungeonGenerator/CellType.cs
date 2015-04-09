@@ -36,6 +36,9 @@ namespace Dungeon.Generator
         {
             var template = new TileType[16,16];
 
+
+
+            MakeOpenings(template, openings);
             
             return template;
         }
