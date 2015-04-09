@@ -35,18 +35,13 @@ namespace Dungeon.Generator
         private static TileType[,] FillCorridor(Direction openings)
         {
             var template = new TileType[16,16];
+
+            
             return template;
         }
 
-        private static TileType[,] FillRoom(Direction openings)
+        private static void MakeOpenings(TileType[,] template, Direction openings)
         {
-            var template = new TileType[16,16];
-
-            for (var x = 1; x < template.GetLength(0) - 1; x++)
-                for (var y = 1; y < template.GetLength(1) - 1; y++)
-                    template[x, y].Type = TileType.Floor;
-
-
             foreach (var opening in openings.ToDirectionsArray())
             {
                 int x = 0, y = 0;
@@ -73,6 +68,21 @@ namespace Dungeon.Generator
 
                 template[x,y].Type = TileType.Floor;
             }
+            
+        }
+
+        private static TileType[,] FillRoom(Direction openings)
+        {
+            var template = new TileType[16,16];
+
+            for (var x = 1; x < template.GetLength(0) - 1; x++)
+                for (var y = 1; y < template.GetLength(1) - 1; y++)
+                    template[x, y].Type = TileType.Floor;
+
+            MakeOpenings(template, openings);
+
+            return template;
+
 
         }
     }
