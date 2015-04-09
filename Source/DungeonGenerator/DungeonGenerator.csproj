@@ -56,26 +56,16 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DirectionHelpers.cs" />
-    <Compile Include="Generation\Generator.cs" />
-    <Compile Include="Generation\Generators\GridBased\CorridorType.cs" />
-    <Compile Include="Generation\Generators\GridBased\Feature.cs" />
-    <Compile Include="Generation\Generators\GridBased\FeatureHelpers.cs" />
-    <Compile Include="Generation\Generators\GridBased\FeatureType.cs" />
-    <Compile Include="Generation\Generators\GridBased\GridBased.cs" />
-    <Compile Include="Generation\Generators\IDungeonGenerationStrategy.cs" />
-    <Compile Include="Generation\Generators\RoomBased\Room.cs" />
-    <Compile Include="Generation\Generators\RoomBased\RoomType.cs" />
-    <Compile Include="Generation\Generators\RoomBased\RoomGeneratorStrategy.cs" />
-    <Compile Include="Generation\MapSize.cs" />
+    <Compile Include="Cell.cs" />
+    <Compile Include="CellType.cs" />
     <Compile Include="Direction.cs" />
-    <Compile Include="Dungeon.cs" />
-    <Compile Include="Generation\MapSizeExtensions.cs" />
+    <Compile Include="DungeonGenerator.cs" />
+    <Compile Include="Generator.cs" />
     <Compile Include="ITileMap.cs" />
-    <Compile Include="Generation\MersennePrimeRandom.cs" />
-    <Compile Include="MovementHelpers.cs" />
-    <Compile Include="Point.cs" />
+    <Compile Include="MapSize.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TileMap.cs" />
+    <Compile Include="TileType.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5">
