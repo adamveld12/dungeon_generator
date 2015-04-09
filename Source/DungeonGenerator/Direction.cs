@@ -25,7 +25,6 @@ namespace Dungeon.Generator
 
         public static bool HasFlag(this Direction dir, Direction other)
         {
-
             var result = (byte) dir & (byte) other;
             Debug.Assert(result == (byte) other);
             return result == (byte) other;

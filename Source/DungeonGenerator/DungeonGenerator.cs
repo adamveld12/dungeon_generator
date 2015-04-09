@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 
 namespace Dungeon.Generator
 {
@@ -8,11 +6,13 @@ namespace Dungeon.Generator
     {
         public const int CellSize = 9;
         private readonly ITileMap _map;
+        private readonly MersennePrimeRandom _random;
         private Cell[,] _cells;
 
-        public DungeonGenerator(ITileMap map)
+        public DungeonGenerator(ITileMap map, uint seed)
         {
             _map = map;
+            _random = new MersennePrimeRandom(seed);
         }
 
         public void Generate()
@@ -51,52 +51,29 @@ namespace Dungeon.Generator
             for (var x = 0; x < _cells.GetLength(0); x++)
                 for (var y = 0; y < _cells.GetLength(1); y++)
                     _cells[x, y].Fill(x, y, _map);
-
         }
 
         // pick a cell type that will connect as many rooms as possible
         private Cell DetermineCellType(Point location, Direction direction)
         {
-            // 
+            var newLocation = direction.GetLocation(location);
+
+            if (newLocation.X >= _cells.GetLength(0) || newLocation.Y >= _cells.GetLength(1))
+                return default(Cell);
+
+            var cell = _cells[newLocation.X, newLocation.Y];
+            if (cell.Type == CellType.None)
+            {
+                var connections = new List<Direction>();
+
+                // check the three directions
+                // pick any number of them at random to connect
+
+
+            }
+
             return default(Cell);
         }
 
-    }
-
-    public class CellGraphNode
-    {
-        private readonly LinkedList<CellGraphNode> _children = new LinkedList<CellGraphNode>();
-
-        public CellGraphNode Add(Cell cell, int x, int y)
-        {
-            Debug.Assert(x == X && y == Y, "The cell passed has the same position as its parent");
-            Debug.Assert(_children.Any(c => c.X == x && c.Y == y), "One of the children nodes is placed in the same location as the parent");
-
-            var node = new CellGraphNode {
-                Cell = cell,
-                X = x,
-                Y = y
-            };
-
-            _children.AddLast(node);
-
-            return node;
-        }
-
-        public Cell Cell { get; set; }
-        public int X { get; set; }
-        public int Y { get; set; }
-
-        public IEnumerable<CellGraphNode> Children
-        {
-            get { return _children; }
-        }
-    }
-
-
-    public struct Point
-    {
-        public int X { get; set; }  
-        public int Y { get; set; }  
     }
 }

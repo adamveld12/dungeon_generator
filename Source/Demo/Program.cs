@@ -22,7 +22,6 @@ namespace Demo
                 Console.WriteLine("Press 'enter' to see a new dungeon");
                 Console.ReadLine();
                 Console.Clear();
-
             }
         }
 
