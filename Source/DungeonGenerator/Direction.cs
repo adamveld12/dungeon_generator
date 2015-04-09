@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Dungeon.Generator
@@ -18,12 +20,41 @@ namespace Dungeon.Generator
 
     public static class DirectionHelpers
     {
-
-        public static readonly Direction[] Directions = Enum.GetValues(typeof (Direction)).Cast<Direction>().Where(x => x != Direction.None).ToArray();
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes")]
+        public static readonly IEnumerable<Direction> Directions = Enum.GetValues(typeof (Direction)).Cast<Direction>().Where(x => x != Direction.None).ToArray();
 
         public static bool HasFlag(this Direction dir, Direction other)
         {
-            return (((byte) other) & ((byte) dir)) == (byte) dir;
+
+            var result = (byte) dir & (byte) other;
+            Debug.Assert(result == (byte) other);
+            return result == (byte) other;
+        }
+
+        public static Point GetLocation(this Direction dir, Point old)
+        {
+            int x = 0, y = 0;
+
+            switch (dir)
+            {
+                case Direction.North:
+                    y = - 1;
+                    break;
+                case Direction.East:
+                    x = 1;
+                    break;
+                case Direction.South:
+                    y = 1;
+                    break;
+                case Direction.West:
+                    x = -1;
+                    break;
+                case Direction.None: break;
+                default:
+                    throw new ArgumentOutOfRangeException("dir");
+            }
+
+            return new Point{X = old.X + x, Y = old.Y + y};
         }
 
         public static Direction[] ToDirectionsArray(this Direction dir)

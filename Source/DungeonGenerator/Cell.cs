@@ -25,6 +25,7 @@ namespace Dungeon.Generator
         {
             return new Cell
             {
+                Type = CellType.Room,
                 Openings = Direction.North | Direction.South | Direction.East | Direction.West
             };
         }
@@ -33,6 +34,7 @@ namespace Dungeon.Generator
         {
             return new Cell
             {
+                Type = CellType.Corridor,
                 Openings = origin | origin.TurnAround()
             };
         }
@@ -41,6 +43,7 @@ namespace Dungeon.Generator
         {
             return new Cell
             {
+                Type = CellType.Corridor,
                 Openings = origin | origin.TurnLeft() | origin.TurnRight()
             };
         }

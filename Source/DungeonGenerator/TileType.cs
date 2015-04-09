@@ -1,7 +1,9 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace Dungeon.Generator
 {
+    [DebuggerDisplay("Type: {Type}")]
     [StructLayout(LayoutKind.Explicit)]
     public struct TileType
     {
