@@ -1,8 +1,8 @@
 ﻿namespace Dungeon.Generator
 {
-    public class TileMap : ITileMap
+    internal class TileMap : ITileMap
     {
-        private TileType[,] _map;
+        private readonly TileType[,] _map;
 
         public TileMap(int width, int height)
         {

@@ -6,7 +6,16 @@
         {
             var map = new TileMap((int) size, (int) size);
 
-            new DungeonGenerator(map, seed).Generate();
+            new DungeonGenerator().Generate(map, seed);
+
+            return map;
+        }
+
+        public static ITileMap Generate(int width, int height, uint seed)
+        {
+            var map = new TileMap(width, height);
+
+            new DungeonGenerator().Generate(map, seed);
 
             return map;
         }

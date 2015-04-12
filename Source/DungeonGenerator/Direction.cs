@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
 
 namespace Dungeon.Generator
 {
@@ -10,7 +8,7 @@ namespace Dungeon.Generator
     /// Direction flags. Laid out so that a right turn is the same as going up one flag
     /// </summary>
     [Flags]
-    public enum Direction : byte
+    internal enum Direction : byte
     {
         None = 0,
         North = 0x01,
@@ -19,7 +17,7 @@ namespace Dungeon.Generator
         West = 0x08
     }
 
-    public static class DirectionHelpers
+    internal static class DirectionHelpers
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes")]
         public static readonly IEnumerable<Direction> Directions = Enum.GetValues(typeof (Direction)).Cast<Direction>().Where(x => x != Direction.None).ToArray();

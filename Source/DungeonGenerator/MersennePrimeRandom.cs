@@ -5,7 +5,7 @@ namespace Dungeon.Generator
     /// <summary>
     /// Implementation of Mersenne Twister random number generator
     /// </summary>
-    public class MersennePrimeRandom
+    internal class MersennePrimeRandom
     {
         private readonly uint[] _matrix = new uint[624];
         private int _index;

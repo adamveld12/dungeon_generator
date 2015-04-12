@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Cell.cs" />
+    <Compile Include="CellHelpers.cs" />
     <Compile Include="CellType.cs" />
     <Compile Include="Direction.cs" />
     <Compile Include="DungeonGenerator.cs" />

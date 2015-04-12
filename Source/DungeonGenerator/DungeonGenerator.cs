@@ -4,23 +4,19 @@ using System.Linq;
 
 namespace Dungeon.Generator
 {
-    public class DungeonGenerator
+    internal class DungeonGenerator
     {
         public const int CellSize = 9;
-        private readonly ITileMap _map;
-        private readonly MersennePrimeRandom _random;
+
+        private MersennePrimeRandom _random;
         private Cell[,] _cells;
 
-        public DungeonGenerator(ITileMap map, uint seed)
+        public void Generate(ITileMap map, uint seed)
         {
-            _map = map;
             _random = new MersennePrimeRandom(seed);
-        }
 
-        public void Generate()
-        {
-            var w = _map.Width/CellSize;
-            var h = _map.Height/CellSize;
+            var w = map.Width/CellSize;
+            var h = map.Height/CellSize;
 
             _cells = new Cell[w,h];
 
@@ -51,7 +47,7 @@ namespace Dungeon.Generator
 
             for (var x = 0; x < _cells.GetLength(0); x++)
                 for (var y = 0; y < _cells.GetLength(1); y++)
-                    _cells[x, y].Fill(x, y, _map);
+                    _cells[x, y].Fill(x, y, map);
         }
 
         // pick a cell type that will connect as many rooms as possible

@@ -5,7 +5,7 @@ namespace Dungeon.Generator
 {
     [DebuggerDisplay("{Type} Cell Exits {Openings}")]
     [StructLayout(LayoutKind.Explicit)]
-    public struct Cell
+    internal struct Cell
     {
         [FieldOffset(0)]
         public Direction Openings;
@@ -13,38 +13,12 @@ namespace Dungeon.Generator
         [FieldOffset(1)]
         public CellType Type;
 
-        public static Cell DeadEndRoom(Direction origin)
-        {
-            return new Cell
-            {
-                Openings = origin.TurnAround()
-            };
-        }
-
         public static Cell FourWayRoom()
         {
             return new Cell
             {
                 Type = CellType.Room,
                 Openings = Direction.North | Direction.South | Direction.East | Direction.West
-            };
-        }
-
-        public static Cell Hallway(Direction origin)
-        {
-            return new Cell
-            {
-                Type = CellType.Corridor,
-                Openings = origin | origin.TurnAround()
-            };
-        }
-
-        public static Cell ThreeWayHallway(Direction origin)
-        {
-            return new Cell
-            {
-                Type = CellType.Corridor,
-                Openings = origin | origin.TurnLeft() | origin.TurnRight()
             };
         }
     }
