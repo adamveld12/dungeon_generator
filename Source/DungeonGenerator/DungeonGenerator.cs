@@ -105,7 +105,7 @@ namespace Dungeon.Generator
                 dir = dir.TurnRight();
             }
 
-            return list;
+            return list.ToArray();
         }
 
     }

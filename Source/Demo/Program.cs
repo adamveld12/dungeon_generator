@@ -19,10 +19,15 @@ namespace Demo
             {ConsoleKey.W, IncreaseSize},
             {ConsoleKey.S, DecreaseSize},
             {ConsoleKey.C, ChangeSeed},
-            {ConsoleKey.Q, () => Environment.Exit(0)},
+            {ConsoleKey.Q, Quit},
 
             {ConsoleKey.Enter, () => { }},
         };
+
+        private static void Quit()
+        {
+            Environment.Exit(0);
+        }
 
         static void ChangeSeed()
         {

@@ -104,7 +104,8 @@ namespace Dungeon.Generator
             }
             else if (direction == Direction.South)
             {
-                for (int y = template.GetLength(1)/2; y < template.GetLength(1); y++)
+                var startY = fillWalls ? template.GetLength(1)/2 - 1 : template.GetLength(1)/2;
+                for (int y = startY; y < template.GetLength(1); y++)
                     //template[DungeonGenerator.CellSize/2, y].Type = TileType.Floor;
                 {
                     if (fillWalls)
