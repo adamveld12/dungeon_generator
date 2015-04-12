@@ -4,6 +4,7 @@ Dungeon Generator
 
 Generates dungeons. Useful for Roguelike/Top down RPGs/Action RPGs/Anything that needs random dungeons.
 
+![image](http://i.imgur.com/nMbhpjX.png)
 
 Built against .Net Framework 4.5 in VS 2013. You can surely build this in mono but I don't care enough to do that.
 
