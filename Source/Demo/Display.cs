@@ -77,5 +77,45 @@ namespace Demo
             Console.WriteLine(Enumerable.Repeat('\u2500', width + 7).ToArray());
             
         }
+
+        public bool PromptForInt(string message, out uint seedValue)
+        {
+            bool valid;
+            uint result = 0;
+            var startPos = new Point {X = Console.CursorLeft, Y = Console.CursorTop};
+
+            Console.CursorVisible = true;
+            var value = "";
+
+            do
+            {
+                // just clear out the text area each time before we 
+                Console.SetCursorPosition(startPos.X, startPos.Y);
+                Console.Write(Enumerable.Repeat(' ', message.Length + value.Length).Aggregate("", (s, c) => s + c));
+                Console.SetCursorPosition(startPos.X, startPos.Y);
+                Console.Write(message);
+
+                 value = Console.ReadLine();
+                valid = (value.Equals("q") || value.Equals("cancel") || value.Equals("quit")) || uint.TryParse(value, out result);
+                seedValue = result;
+
+            } while (!valid);
+
+            Console.CursorVisible = false;
+            return true;
+        }
+
+        public void ShowInstructions(uint Seed, MapSize size)
+        {
+
+                Console.WriteLine("Seed: {0}", Seed);
+                Console.WriteLine("Size: {0}", size);
+                Console.WriteLine("Press 'q' to quit");
+                Console.WriteLine("Press 'enter' to see a new dungeon");
+                Console.WriteLine("Press 'w' to increase dungeon size");
+                Console.WriteLine("Press 's' to decrease dungeon size");
+                Console.WriteLine("Press 'c' to change the seed");
+
+        }
     }
 }

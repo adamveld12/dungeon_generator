@@ -18,8 +18,18 @@ namespace Demo
         {
             {ConsoleKey.W, IncreaseSize},
             {ConsoleKey.S, DecreaseSize},
+            {ConsoleKey.C, ChangeSeed},
+            {ConsoleKey.Q, () => Environment.Exit(0)},
+
             {ConsoleKey.Enter, () => { }},
         };
+
+        static void ChangeSeed()
+        {
+            uint seedValue;
+            if (display.PromptForInt("Enter a positive integer for the new seed or press \'q\' to cancel.", out seedValue))
+                Seed = seedValue;
+        }
 
         static void IncreaseSize()
         {
@@ -28,7 +38,6 @@ namespace Demo
 
         static void DecreaseSize()
         {
-
             selectedSize--;
             selectedSize = selectedSize < 0 ? sizes.Length - 1 : selectedSize;
         }
@@ -38,21 +47,20 @@ namespace Demo
             while (true)
             {
                 var size = sizes[selectedSize];
-                var dungeon = Generator.Generate(size, Seed++);
+                var dungeon = Generator.Generate(size, Seed);
                 display.ShowDungeon(dungeon);
 
                 Thread.Sleep(100);
-                Console.WriteLine("Seed: {0}", Seed);
-                Console.WriteLine("Size: {0}", size);
-                Console.WriteLine("Press 'enter' to see a new dungeon");
-                Console.WriteLine("Press 'w' to increase dungeon size");
-                Console.WriteLine("Press 's' to decrease dungeon size");
+                display.ShowInstructions(Seed, size);
+
                 var input = Console.ReadKey();
                 Action result;
                 if (_inputMap.TryGetValue(input.Key, out result))
                     result();
 
                 Console.Clear();
+
+                Seed++;
             }
         }
 

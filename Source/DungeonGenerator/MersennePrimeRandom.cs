@@ -75,7 +75,9 @@ namespace Dungeon.Generator
         /// <returns></returns>
         public int Next(int min, int max)
         {
-            if (min >= max)
+            if (min == max)
+                return max;
+            if (min > max)
                 throw new ArgumentException("min cannot be greater than max", "min");
             return min + Next(min - max);
         }

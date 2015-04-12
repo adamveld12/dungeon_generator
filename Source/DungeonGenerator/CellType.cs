@@ -44,25 +44,78 @@ namespace Dungeon.Generator
             var template = MakeTemplate(DungeonGenerator.CellSize);
 
             foreach (var direction in openings.ToDirectionsArray())
-            {
-                // TODO dry this up
-                if (direction == Direction.West)
-                    for (int x = 0; x < template.GetLength(0)/2 + 1; x++)
-                        template[x, DungeonGenerator.CellSize/2].Type = TileType.Floor;
-                else if (direction == Direction.East)
-                    for (int x = template.GetLength(0)/2; x < template.GetLength(0); x++)
-                        template[x, DungeonGenerator.CellSize/2].Type = TileType.Floor;
-                else if (direction == Direction.North )
-                    for (int y = 0; y < template.GetLength(1)/2; y++)
-                        template[DungeonGenerator.CellSize/2, y].Type = TileType.Floor;
-                else if (direction == Direction.South)
-                    for (int y = template.GetLength(1)/2; y < template.GetLength(1); y++)
-                        template[DungeonGenerator.CellSize/2, y].Type = TileType.Floor;
-            }
+                CarveCorridors(direction, template, true);
+
+            foreach (var direction in openings.ToDirectionsArray())
+                CarveCorridors(direction, template);
 
             MakeOpenings(template, openings);
             
             return template;
+        }
+
+        private static void CarveCorridors(Direction direction, TileType[,] template, bool fillWalls = false)
+        {
+            // TODO dry this up
+            if (direction == Direction.West)
+            {
+                var endX = fillWalls ? template.GetLength(0)/2 + 1 : template.GetLength(0)/2;
+                for (int x = 0; x <= endX; x++)
+                    //template[x, DungeonGenerator.CellSize/2].Type = TileType.Floor;
+                {
+                    if (fillWalls)
+                    {
+                        template[x, DungeonGenerator.CellSize/2 - 1].Type = TileType.Wall;
+                        template[x, DungeonGenerator.CellSize/2 + 1].Type = TileType.Wall;
+                    }
+                    else
+                        template[x, DungeonGenerator.CellSize/2].Type = TileType.Floor;
+                }
+            }
+            else if (direction == Direction.East)
+            {
+                var startX = fillWalls ? template.GetLength(0)/2 - 1 : template.GetLength(0)/2;
+                for (int x =startX; x < template.GetLength(0); x++)
+                    //template[x, DungeonGenerator.CellSize/2].Type = TileType.Floor;
+                {
+                    if (fillWalls)
+                    {
+                        template[x, DungeonGenerator.CellSize/2 - 1].Type = TileType.Wall;
+                        template[x, DungeonGenerator.CellSize/2 + 1].Type = TileType.Wall;
+                    }
+                    else
+                        template[x, DungeonGenerator.CellSize/2].Type = TileType.Floor;
+                }
+            }
+            else if (direction == Direction.North)
+            {
+                var endY = fillWalls ? template.GetLength(1)/2 + 1 : template.GetLength(1)/2;
+                for (int y = 0; y < endY; y++)
+                    //template[DungeonGenerator.CellSize/2, y].Type = TileType.Floor;
+                {
+                    if (fillWalls)
+                    {
+                        template[DungeonGenerator.CellSize/2 - 1, y].Type = TileType.Wall;
+                        template[DungeonGenerator.CellSize/2 + 1, y].Type = TileType.Wall;
+                    }
+                    else
+                        template[DungeonGenerator.CellSize/2, y].Type = TileType.Floor;
+                }
+            }
+            else if (direction == Direction.South)
+            {
+                for (int y = template.GetLength(1)/2; y < template.GetLength(1); y++)
+                    //template[DungeonGenerator.CellSize/2, y].Type = TileType.Floor;
+                {
+                    if (fillWalls)
+                    {
+                        template[DungeonGenerator.CellSize/2 - 1, y].Type = TileType.Wall;
+                        template[DungeonGenerator.CellSize/2 + 1, y].Type = TileType.Wall;
+                    }
+                    else
+                        template[DungeonGenerator.CellSize/2, y].Type = TileType.Floor;
+                }
+            }
         }
 
         private static TileType[,] MakeTemplate(int size, byte tileType = TileType.Air)

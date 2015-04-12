@@ -71,10 +71,11 @@ namespace Dungeon.Generator
                 var types = CellHelpers.CellTypes;
                 var cellType = types.ElementAt(_random.Next(types.Count()));
 
-                var connectsToMake =  _random.Next(connections.Count(), Math.Max(connections.Count(), 4));
+
+                var connectsToMake =  _random.Next(connections.Length, Math.Max(connections.Length, 5));
                 
                 // pick any number of them at random to connect
-                connections = connections.Take(connectsToMake).Concat(new[] {direction.TurnAround()});
+                connections = connections.Take(connectsToMake).Concat(new[] {direction.TurnAround()}).ToArray();
 
                 return new Cell
                 {
@@ -86,11 +87,11 @@ namespace Dungeon.Generator
             return default(Cell);
         }
 
-        private IEnumerable<Direction> FindValidConnections(Direction dir, Point loc)
+        private Direction[] FindValidConnections(Direction dir, Point loc)
         {
             var list = new List<Direction>();
 
-            for (var i = 0; i < 3; i++)
+            for (var i = 0; i < 4; i++)
             {
                 var newLoc = dir.GetLocation(loc);
 
