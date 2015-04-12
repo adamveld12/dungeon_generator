@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Dungeon.Generator
 {
@@ -37,7 +39,6 @@ namespace Dungeon.Generator
                 foreach(var opening in cell.Openings.ToDirectionsArray())
                 {
                     var newLocation = opening.GetLocation(location);
-
                     var newCell = DetermineCellType(newLocation, opening);
 
                     if (newCell.Type != CellType.None)
@@ -56,23 +57,54 @@ namespace Dungeon.Generator
         // pick a cell type that will connect as many rooms as possible
         private Cell DetermineCellType(Point location, Direction direction)
         {
-            var newLocation = direction.GetLocation(location);
-
-            if (newLocation.X >= _cells.GetLength(0) || newLocation.Y >= _cells.GetLength(1))
+            if (location.X >= _cells.GetLength(0) || location.Y >= _cells.GetLength(1) || location.X < 0 || location.Y < 0)
                 return default(Cell);
 
-            var cell = _cells[newLocation.X, newLocation.Y];
+            var cell = _cells[location.X, location.Y];
             if (cell.Type == CellType.None)
             {
-                var connections = new List<Direction>();
-
                 // check the three directions
+                var connections = FindValidConnections(direction, location);
+
+
+                // pick any random cell type to connect them
+                var types = CellHelpers.CellTypes;
+                var cellType = types.ElementAt(_random.Next(types.Count()));
+
+                var connectsToMake =  _random.Next(connections.Count(), Math.Max(connections.Count(), 4));
+                
                 // pick any number of them at random to connect
+                connections = connections.Take(connectsToMake).Concat(new[] {direction.TurnAround()});
 
-
+                return new Cell
+                {
+                    Type = cellType,
+                    Openings = connections.ToDirectionFlag()
+                };
             }
 
             return default(Cell);
+        }
+
+        private IEnumerable<Direction> FindValidConnections(Direction dir, Point loc)
+        {
+            var list = new List<Direction>();
+
+            for (var i = 0; i < 3; i++)
+            {
+                var newLoc = dir.GetLocation(loc);
+
+                if (newLoc.X >= 0 && newLoc.X < _cells.GetLength(0) && newLoc.Y >= 0 && newLoc.Y < _cells.GetLength(1))
+                {
+                    var cell = _cells[newLoc.X, newLoc.Y];
+
+                    if(cell.Type == CellType.None || cell.Openings.Facing(dir))
+                        list.Add(dir);
+                }
+                dir = dir.TurnRight();
+            }
+
+            return list;
         }
 
     }
