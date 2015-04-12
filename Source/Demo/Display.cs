@@ -43,14 +43,18 @@ namespace Demo
 
                     switch (tile.Type)
                     {
+                        case TileType.Air:
+                            output = ' ';
+                            break;
                         case TileType.Wall:
+                            Console.ForegroundColor = ConsoleColor.White;
                             output = '\u256C';
                             break;
                         case TileType.Floor:
                             Console.ForegroundColor = ConsoleColor.Gray;
                             output = '\u2591';
                             break;
-                        case 2:
+                        case TileType.BreakableWall:
                             Console.ForegroundColor = ConsoleColor.Green;
                             output = '@';
                             break;
