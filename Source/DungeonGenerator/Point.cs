@@ -1,5 +1,8 @@
-﻿namespace Dungeon.Generator
+﻿using System.Diagnostics;
+
+namespace Dungeon.Generator
 {
+    [DebuggerDisplay("({X},{Y})")]
     public struct Point
     {
         public int X { get; set; }  

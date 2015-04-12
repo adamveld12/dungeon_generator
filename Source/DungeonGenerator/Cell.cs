@@ -1,12 +1,12 @@
-﻿using System;
+﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace Dungeon.Generator
 {
+    [DebuggerDisplay("{Type} Cell Exits {Openings}")]
     [StructLayout(LayoutKind.Explicit)]
     public struct Cell
     {
-        
         [FieldOffset(0)]
         public Direction Openings;
 

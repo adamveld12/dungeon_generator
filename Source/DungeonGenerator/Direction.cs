@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 
 namespace Dungeon.Generator
 {
@@ -26,8 +27,28 @@ namespace Dungeon.Generator
         public static bool HasFlag(this Direction dir, Direction other)
         {
             var result = (byte) dir & (byte) other;
-            Debug.Assert(result == (byte) other);
             return result == (byte) other;
+        }
+
+        public static bool Facing(this Direction source, Direction other)
+        {
+            return source.ToDirectionsArray().Any(x =>
+            {
+                switch (x)
+                {
+                    case Direction.None: return false;
+                    case Direction.North: return other.HasFlag(Direction.South);
+                    case Direction.East: return other.HasFlag(Direction.West);
+                    case Direction.South: return other.HasFlag(Direction.North);
+                    case Direction.West: return other.HasFlag(Direction.East);
+                    default: throw new ArgumentOutOfRangeException("x");
+                }
+            });
+        }
+
+        public static Direction ToDirectionFlag(this IEnumerable<Direction> source)
+        {
+            return source.Aggregate(Direction.None, (agg, item) => agg | item);
         }
 
         public static Point GetLocation(this Direction dir, Point old)

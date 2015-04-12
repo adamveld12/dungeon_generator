@@ -16,7 +16,9 @@ namespace Dungeon.Generator
         [FieldOffset(1)]
         public byte Attributes;
 
+        public const byte Air = 0x00;
         public const byte Floor = 0x01;
-        public const byte Wall = 0x00;
+        public const byte Wall = 0x02;
+        public const byte BreakableWall = 0x03;
     }
 }
