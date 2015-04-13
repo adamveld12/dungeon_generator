@@ -10,23 +10,58 @@ namespace Demo
     {
         private static MapSize[] sizes = Enum.GetValues(typeof (MapSize)).Cast<MapSize>().ToArray();
         private static int selectedSize;
+        private static uint Seed = 1024u;
+        private static ITileMap dungeon;
+        private static bool running;
 
-        static uint Seed = 1024u;
-
-        static readonly Display display = new Display();
-        static Dictionary<ConsoleKey, Action>  _inputMap = new Dictionary<ConsoleKey, Action>()
+        private static readonly Display display = new Display();
+        private static readonly Dictionary<ConsoleKey, Action>  _inputMap = new Dictionary<ConsoleKey, Action>()
         {
             {ConsoleKey.W, IncreaseSize},
             {ConsoleKey.S, DecreaseSize},
             {ConsoleKey.C, ChangeSeed},
             {ConsoleKey.Q, Quit},
-
-            {ConsoleKey.Enter, () => { }},
+            {ConsoleKey.Enter, Generate},
         };
+
+        public static void Main()
+        {
+            running = true;
+
+            Generate();
+
+            while (running)
+            {
+                display.ShowDungeon(dungeon);
+
+                Thread.Sleep(100);
+
+                display.ShowInstructions(Seed, sizes[selectedSize]);
+
+                Action result;
+                ConsoleKeyInfo input;
+                do
+                {
+                    input = Console.ReadKey();
+                } while (!_inputMap.TryGetValue(input.Key, out result));
+
+                result();
+
+                Console.Clear();
+
+                Seed++;
+            }
+        }
+
+        private static void Generate()
+        {
+            var size = sizes[selectedSize];
+            dungeon = Generator.Generate(size, Seed);
+        }
 
         private static void Quit()
         {
-            Environment.Exit(0);
+            running = false;
         }
 
         static void ChangeSeed()
@@ -46,28 +81,5 @@ namespace Demo
             selectedSize--;
             selectedSize = selectedSize < 0 ? sizes.Length - 1 : selectedSize;
         }
-
-        static void Main()
-        {
-            while (true)
-            {
-                var size = sizes[selectedSize];
-                var dungeon = Generator.Generate(size, Seed);
-                display.ShowDungeon(dungeon);
-
-                Thread.Sleep(100);
-                display.ShowInstructions(Seed, size);
-
-                var input = Console.ReadKey();
-                Action result;
-                if (_inputMap.TryGetValue(input.Key, out result))
-                    result();
-
-                Console.Clear();
-
-                Seed++;
-            }
-        }
-
     }
 }

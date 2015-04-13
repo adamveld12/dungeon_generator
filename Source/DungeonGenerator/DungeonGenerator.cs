@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Dungeon.Generator
 {
@@ -62,16 +63,15 @@ namespace Dungeon.Generator
                 // check the three directions
                 var connections = FindValidConnections(direction, location);
 
-
                 // pick any random cell type to connect them
                 var types = CellHelpers.CellTypes;
                 var cellType = types.ElementAt(_random.Next(types.Count()));
 
-
-                var connectsToMake =  _random.Next(connections.Length, Math.Max(connections.Length, 5));
+                // TODO for whatever reason, always picks 4 way connections
+                var connectsToMake =  _random.Next(2, Math.Max(connections.Length, 5));
                 
                 // pick any number of them at random to connect
-                connections = connections.Take(connectsToMake).Concat(new[] {direction.TurnAround()}).ToArray();
+                connections = connections.Take(connectsToMake).Concat(new []{ direction }).ToArray();//.Concat(new[] {direction.TurnAround()}).ToArray();
 
                 return new Cell
                 {
@@ -87,7 +87,7 @@ namespace Dungeon.Generator
         {
             var list = new List<Direction>();
 
-            for (var i = 0; i < 4; i++)
+            for (var i = 0; i < DirectionHelpers.Directions.Count(); i++)
             {
                 var newLoc = dir.GetLocation(loc);
 
@@ -98,6 +98,7 @@ namespace Dungeon.Generator
                     if(cell.Type == CellType.None || cell.Openings.Facing(dir))
                         list.Add(dir);
                 }
+
                 dir = dir.TurnRight();
             }
 

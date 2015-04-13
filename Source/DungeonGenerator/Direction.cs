@@ -28,6 +28,12 @@ namespace Dungeon.Generator
             return result == (byte) other;
         }
 
+        /// <summary>
+        /// Does the source direction face the 'other' direction
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="other"></param>
+        /// <returns></returns>
         public static bool Facing(this Direction source, Direction other)
         {
             return source.ToDirectionsArray().Any(x =>
