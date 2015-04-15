@@ -4,7 +4,7 @@ Dungeon Generator
 
 Generates dungeons of arbitrary size. Useful for Roguelike/Top down/Action RPGs/Anything that needs random dungeons.
 
-![image](http://i.imgur.com/nMbhpjX.png)
+![image](http://i.imgur.com/yJjLThE.png)
 
 
 ## How To Use
