@@ -8,14 +8,14 @@ namespace Demo
 {
     public class Program
     {
-        private static MapSize[] sizes = Enum.GetValues(typeof (MapSize)).Cast<MapSize>().ToArray();
+        private static readonly MapSize[] sizes = Enum.GetValues(typeof (MapSize)).Cast<MapSize>().ToArray();
         private static int selectedSize;
-        private static uint Seed = 1024u;
+        private static uint Seed = 1032u;
         private static ITileMap dungeon;
         private static bool running;
 
         private static readonly Display display = new Display();
-        private static readonly Dictionary<ConsoleKey, Action>  _inputMap = new Dictionary<ConsoleKey, Action>()
+        private static readonly Dictionary<ConsoleKey, Action>  _inputMap = new Dictionary<ConsoleKey, Action>
         {
             {ConsoleKey.W, IncreaseSize},
             {ConsoleKey.S, DecreaseSize},
@@ -28,10 +28,10 @@ namespace Demo
         {
             running = true;
 
-            Generate();
 
             while (running)
             {
+                Generate();
                 display.ShowDungeon(dungeon);
 
                 Thread.Sleep(100);
