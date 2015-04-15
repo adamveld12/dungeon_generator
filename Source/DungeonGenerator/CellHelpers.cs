@@ -57,6 +57,7 @@ namespace Dungeon.Generator
                     {
                         template[x, DungeonGenerator.CellSize/2 - 1].Type = TileType.Wall;
                         template[x, DungeonGenerator.CellSize/2 + 1].Type = TileType.Wall;
+                        template[x, DungeonGenerator.CellSize/2].Type = TileType.Wall;
                     }
                     else
                         template[x, DungeonGenerator.CellSize/2].Type = TileType.Floor;
@@ -71,6 +72,7 @@ namespace Dungeon.Generator
                     {
                         template[x, DungeonGenerator.CellSize/2 - 1].Type = TileType.Wall;
                         template[x, DungeonGenerator.CellSize/2 + 1].Type = TileType.Wall;
+                        template[x, DungeonGenerator.CellSize/2].Type = TileType.Wall;
                     }
                     else
                         template[x, DungeonGenerator.CellSize/2].Type = TileType.Floor;
@@ -85,6 +87,7 @@ namespace Dungeon.Generator
                     {
                         template[DungeonGenerator.CellSize/2 - 1, y].Type = TileType.Wall;
                         template[DungeonGenerator.CellSize/2 + 1, y].Type = TileType.Wall;
+                        template[DungeonGenerator.CellSize/2, y].Type = TileType.Wall;
                     }
                     else
                         template[DungeonGenerator.CellSize/2, y].Type = TileType.Floor;
@@ -99,6 +102,7 @@ namespace Dungeon.Generator
                     {
                         template[DungeonGenerator.CellSize/2 - 1, y].Type = TileType.Wall;
                         template[DungeonGenerator.CellSize/2 + 1, y].Type = TileType.Wall;
+                        template[DungeonGenerator.CellSize/2, y].Type = TileType.Wall;
                     }
                     else
                         template[DungeonGenerator.CellSize/2, y].Type = TileType.Floor;
