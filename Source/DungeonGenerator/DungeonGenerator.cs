@@ -30,7 +30,7 @@ namespace Dungeon.Generator
             _cells[startLoc.X, startLoc.Y] = Cell.FourWayRoom();
 
             if(_params.Exits)
-                _cells[startLoc.X, startLoc.Y].Attributes = TileAttributes.Exit;
+                _cells[startLoc.X, startLoc.Y].Attributes = TileAttributes.Entry;
 
             var unprocessed = new Queue<Point>();
             unprocessed.Enqueue(startLoc);
@@ -44,6 +44,11 @@ namespace Dungeon.Generator
                 {
                     var newLocation = opening.GetLocation(location);
                     var newCell = DetermineCellType(newLocation, opening);
+
+                    if (_params.MonsterSpawns && newCell.Type == CellType.Room && _random.Next(100) <= 33)
+                        newCell.Attributes |= TileAttributes.MonsterSpawn;
+                    if (_params.Loot && newCell.Type == CellType.Room && _random.Next(100) <= 33)
+                        newCell.Attributes |= TileAttributes.Loot;
 
                     if (newCell.Type != CellType.None)
                     {

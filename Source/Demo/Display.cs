@@ -41,26 +41,51 @@ namespace Demo
                     Console.ForegroundColor = ConsoleColor.White;
                     char output;
 
-                    switch (tile)
+                    switch (tile.Material)
                     {
-                        case TileAttributes.Air:
+                        case TileMaterial.Air:
                             output = ' ';
                             break;
-                        case TileAttributes.Wall:
+                        case TileMaterial.Wall:
                             Console.ForegroundColor = ConsoleColor.White;
                             output = '\u256C';
                             break;
-                        case TileAttributes.Floor:
+                        case TileMaterial.Floor:
                             Console.ForegroundColor = ConsoleColor.Gray;
                             output = '\u2591';
                             break;
-                        case TileAttributes.BreakableWall:
+                        case TileMaterial.BreakableWall:
                             Console.ForegroundColor = ConsoleColor.Green;
-                            output = '@';
+                            output = '#';
                             break;
+
                         default:
-                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.ForegroundColor = ConsoleColor.Green;
                             output = '?';
+                            break;
+                    }
+
+                    switch (tile.Attributes)
+                    {
+                        case TileAttributes.Entry:
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            output = 'E';
+                            break;
+                        case TileAttributes.Exit:
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            output = 'E';
+                            break;
+                        case TileAttributes.Loot:
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            output = 'L';
+                            break;
+                        case TileAttributes.MonsterSpawn:
+                            Console.ForegroundColor = ConsoleColor.DarkRed;
+                            output = 'M';
+                            break;
+                        case TileAttributes.Doors:
+                            Console.ForegroundColor = ConsoleColor.DarkBlue;
+                            output = 'D';
                             break;
                     }
 
