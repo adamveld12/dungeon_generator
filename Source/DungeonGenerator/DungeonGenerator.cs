@@ -5,14 +5,18 @@ namespace Dungeon.Generator
 {
     internal class DungeonGenerator
     {
+        private readonly GeneratorParams _params;
         public const int CellSize = 9;
 
         private MersennePrimeRandom _random;
         private Cell[,] _cells;
 
-        public void Generate(ITileMap map, uint seed)
+        public DungeonGenerator() : this(GeneratorParams.Default) { }
+        public DungeonGenerator(GeneratorParams @params) { _params = @params; }
+
+        public void Generate(ITileMap map)
         {
-            _random = new MersennePrimeRandom(seed);
+            _random = new MersennePrimeRandom(_params.Seed);
 
             var w = map.Width/CellSize;
             var h = map.Height/CellSize;
@@ -46,25 +50,26 @@ namespace Dungeon.Generator
 
             for (var x = 0; x < _cells.GetLength(0); x++)
                 for (var y = 0; y < _cells.GetLength(1); y++)
-                    _cells[x, y].Fill(x, y, map);
+                    _cells[x, y].Fill(x, y, map, _params);
         }
 
         // pick a cell type that will connect as many rooms as possible
         private Cell DetermineCellType(Point location, Direction direction)
         {
-            if (location.X >= _cells.GetLength(0) || location.Y >= _cells.GetLength(1) || location.X < 0 || location.Y < 0)
-                return default(Cell);
-
-            var cell = _cells[location.X, location.Y];
-            if (cell.Type == CellType.None)
+            if (location.X >= 0 && location.X < _cells.GetLength(0) && location.Y >= 0 && location.Y < _cells.GetLength(0))
             {
-                var types = CellHelpers.CellTypes;
-
-                return new Cell
+                var cell = _cells[location.X, location.Y];
+                if (cell.Type == CellType.None)
                 {
-                    Type = types.ElementAt(_random.Next(types.Count())),
-                    Openings = FindValidConnections(direction, location)
-                };
+                    var roomChance = _random.Next(0, 100)/100.0f;
+
+                    return new Cell
+                    {
+                        Type = roomChance >= _params.RoomChance ? CellType.Room : CellType.Corridor,
+                        Openings = FindValidConnections(direction, location)
+                    };
+                }
+                
             }
 
             return default(Cell);

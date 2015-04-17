@@ -28,7 +28,6 @@ namespace Demo
         {
             running = true;
 
-
             while (running)
             {
                 Generate();

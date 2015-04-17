@@ -2,11 +2,21 @@
 {
     public static class Generator
     {
+        public static ITileMap Generate(MapSize size, GeneratorParams parameters)
+        {
+            var map = new TileMap((int) size, (int) size);
+            new DungeonGenerator(parameters).Generate(map);
+            return map;
+        }
+
         public static ITileMap Generate(MapSize size, uint seed)
         {
             var map = new TileMap((int) size, (int) size);
 
-            new DungeonGenerator().Generate(map, seed);
+            var parameters = GeneratorParams.Default;
+            parameters.Seed = seed;
+
+            new DungeonGenerator(parameters).Generate(map);
 
             return map;
         }
@@ -15,7 +25,10 @@
         {
             var map = new TileMap(width, height);
 
-            new DungeonGenerator().Generate(map, seed);
+            var parameters = GeneratorParams.Default;
+            parameters.Seed = seed;
+
+            new DungeonGenerator(parameters).Generate(map);
 
             return map;
         }

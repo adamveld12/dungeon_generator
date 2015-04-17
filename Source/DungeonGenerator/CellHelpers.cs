@@ -7,7 +7,7 @@ namespace Dungeon.Generator
     {
         public static CellType[] CellTypes = Enum.GetValues(typeof (CellType)).Cast<CellType>().Where(x => x != CellType.None).ToArray();
 
-        public static void Fill(this Cell cell, int x, int y, ITileMap map)
+        public static void Fill(this Cell cell, int x, int y, ITileMap map, GeneratorParams parameters)
         {
             TileType[,] template;
 
