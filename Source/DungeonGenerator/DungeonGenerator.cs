@@ -18,13 +18,19 @@ namespace Dungeon.Generator
         {
             _random = new MersennePrimeRandom(_params.Seed);
 
+            // does two passes
             var w = map.Width/CellSize;
             var h = map.Height/CellSize;
 
             _cells = new Cell[w,h];
 
+
+            // first pass populates an adjacency list with cell types in different opening combos
             var startLoc = new Point { X = w/2, Y = h/2 };
             _cells[startLoc.X, startLoc.Y] = Cell.FourWayRoom();
+
+            if(_params.Exits)
+                _cells[startLoc.X, startLoc.Y].Attributes = TileAttributes.Exit;
 
             var unprocessed = new Queue<Point>();
             unprocessed.Enqueue(startLoc);
@@ -32,7 +38,6 @@ namespace Dungeon.Generator
             while (unprocessed.Count > 0)
             {
                 var location = unprocessed.Dequeue();
-
                 var cell = _cells[location.X, location.Y];
 
                 foreach(var opening in cell.Openings.ToDirectionsArray())
@@ -48,9 +53,26 @@ namespace Dungeon.Generator
                 }
             }
 
+            var secondExitPlaced = !_params.Exits;
+
+            // second pass bakes the adjacency list into the tile map
             for (var x = 0; x < _cells.GetLength(0); x++)
                 for (var y = 0; y < _cells.GetLength(1); y++)
+                {
+                    if (!secondExitPlaced && (x <= w*0.15 || y > h*0.85))
+                    {
+                        _cells[x, y].Attributes = TileAttributes.Exit;
+                        secondExitPlaced = true;
+                    }
+
                     _cells[x, y].Fill(x, y, map, _params);
+                }
+
+            if (!secondExitPlaced)
+            {
+                _cells[w - 1, h - 1].Attributes = TileAttributes.Exit;
+                _cells[w - 1, h - 1].Fill(w - 1, h - 1, map, _params);
+            }
         }
 
         // pick a cell type that will connect as many rooms as possible

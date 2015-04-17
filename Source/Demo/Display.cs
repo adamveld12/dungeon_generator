@@ -41,20 +41,20 @@ namespace Demo
                     Console.ForegroundColor = ConsoleColor.White;
                     char output;
 
-                    switch (tile.Type)
+                    switch (tile)
                     {
-                        case TileType.Air:
+                        case TileAttributes.Air:
                             output = ' ';
                             break;
-                        case TileType.Wall:
+                        case TileAttributes.Wall:
                             Console.ForegroundColor = ConsoleColor.White;
                             output = '\u256C';
                             break;
-                        case TileType.Floor:
+                        case TileAttributes.Floor:
                             Console.ForegroundColor = ConsoleColor.Gray;
                             output = '\u2591';
                             break;
-                        case TileType.BreakableWall:
+                        case TileAttributes.BreakableWall:
                             Console.ForegroundColor = ConsoleColor.Green;
                             output = '@';
                             break;

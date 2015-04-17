@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Cell.cs" />
+    <Compile Include="TileAttributes.cs" />
     <Compile Include="CellHelpers.cs" />
     <Compile Include="CellType.cs" />
     <Compile Include="Direction.cs" />
@@ -69,7 +70,6 @@
     <Compile Include="Point.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TileMap.cs" />
-    <Compile Include="TileType.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5">

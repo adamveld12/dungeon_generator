@@ -2,17 +2,17 @@
 {
     internal class TileMap : ITileMap
     {
-        private readonly TileType[,] _map;
+        private readonly TileAttributes[,] _map;
 
         public TileMap(int width, int height)
         {
             Width = width;
             Height = height;
 
-            _map = new TileType[Width,Height];
+            _map = new TileAttributes[Width,Height];
         }
 
-        public TileType this[int x, int y]
+        public TileAttributes this[int x, int y]
         {
             get { return _map[x, y]; }
             set { _map[x, y] = value;  }

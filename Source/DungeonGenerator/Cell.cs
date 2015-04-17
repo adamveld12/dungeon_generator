@@ -13,6 +13,9 @@ namespace Dungeon.Generator
         [FieldOffset(1)]
         public CellType Type;
 
+        [FieldOffset(2)]
+        public TileAttributes Attributes;
+
         public static Cell FourWayRoom()
         {
             return new Cell
