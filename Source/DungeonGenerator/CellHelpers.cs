@@ -1,12 +1,11 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Dungeon.Generator
 {
     internal static class CellHelpers
     {
-        public static IEnumerable<CellType> CellTypes = Enum.GetValues(typeof (CellType)).Cast<CellType>().Where(x => x != CellType.None).ToArray();
+        public static CellType[] CellTypes = Enum.GetValues(typeof (CellType)).Cast<CellType>().Where(x => x != CellType.None).ToArray();
 
         public static void Fill(this Cell cell, int x, int y, ITileMap map)
         {

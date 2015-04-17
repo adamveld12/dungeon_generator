@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Dungeon.Generator
 {
@@ -60,17 +58,12 @@ namespace Dungeon.Generator
             var cell = _cells[location.X, location.Y];
             if (cell.Type == CellType.None)
             {
-                // check the three directions
-                var connections = FindValidConnections(direction, location);
-
                 // pick any random cell type to connect them
                 var types = CellHelpers.CellTypes;
                 var cellType = types.ElementAt(_random.Next(types.Count()));
 
-                var connectsToMake = connections.Length > 0 ? _random.Next(1, connections.Length + 1) : 0; //_random.Next(1, connections.Length + 1);
-
-                // pick any number of them at random to connect
-                connections = connections.Take(connectsToMake).Concat(new []{ direction.TurnAround() }).ToArray();
+                // check the three directions
+                var connections = FindValidConnections(direction, location);
 
                 return new Cell
                 {
@@ -82,10 +75,13 @@ namespace Dungeon.Generator
             return default(Cell);
         }
 
-        private Direction[] FindValidConnections(Direction dir, Point loc)
+        private IEnumerable<Direction> FindValidConnections(Direction dir, Point loc)
         {
             var list = new List<Direction>();
 
+            var startDir = dir;
+
+            dir = dir.TurnLeft();
             for (var i = 0; i < DirectionHelpers.Directions.Count() - 1; i++)
             {
                 var newLoc = dir.GetLocation(loc);
@@ -101,7 +97,20 @@ namespace Dungeon.Generator
                 dir = dir.TurnRight();
             }
 
-            return list.ToArray();
+
+            var connectsToMake = list.Count > 0 ? _random.Next(1, list.Count + 1) : 0;
+            var validConnections =  list.Take(connectsToMake).Concat(new []{ startDir.TurnAround() }).ToArray();
+
+            // close the openings in the neighbor cells that we didn't make
+            foreach (var connectToUndo in list.Skip(connectsToMake))
+            {
+                var newLoc = connectToUndo.GetLocation(loc);
+                var dirToUndo = connectToUndo.TurnAround();
+
+                _cells[newLoc.X, newLoc.Y].Openings ^= dirToUndo;
+            }
+
+            return validConnections;
         }
 
     }
