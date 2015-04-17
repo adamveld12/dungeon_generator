@@ -58,24 +58,19 @@ namespace Dungeon.Generator
             var cell = _cells[location.X, location.Y];
             if (cell.Type == CellType.None)
             {
-                // pick any random cell type to connect them
                 var types = CellHelpers.CellTypes;
-                var cellType = types.ElementAt(_random.Next(types.Count()));
-
-                // check the three directions
-                var connections = FindValidConnections(direction, location);
 
                 return new Cell
                 {
-                    Type = cellType,
-                    Openings = connections.ToDirectionFlag()
+                    Type = types.ElementAt(_random.Next(types.Count())),
+                    Openings = FindValidConnections(direction, location)
                 };
             }
 
             return default(Cell);
         }
 
-        private IEnumerable<Direction> FindValidConnections(Direction dir, Point loc)
+        private Direction FindValidConnections(Direction dir, Point loc)
         {
             var list = new List<Direction>();
 
@@ -110,7 +105,7 @@ namespace Dungeon.Generator
                 _cells[newLoc.X, newLoc.Y].Openings ^= dirToUndo;
             }
 
-            return validConnections;
+            return validConnections.ToDirectionFlag();
         }
 
     }
