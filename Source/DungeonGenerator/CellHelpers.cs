@@ -19,24 +19,28 @@ namespace Dungeon.Generator
                 case CellType.Corridor:
                     template = FillCorridor(cell.Openings);
                     break;
-                default: return;
+                default: 
+                    return;
             }
 
-            const int cellSize = DungeonGenerator.CellSize;
+            const int cs = DungeonGenerator.CellSize;
 
             for (var xPos = 0; xPos < template.GetLength(0); xPos++)
                 for (var yPos = 0; yPos < template.GetLength(1); yPos++)
-                    map[x * cellSize + xPos, y * cellSize + yPos] = template[xPos, yPos];
+                    map[x * cs + xPos, y * cs + yPos] = template[xPos, yPos];
         }
 
         private static TileType[,] FillCorridor(Direction openings)
         {
             var template = MakeTemplate(DungeonGenerator.CellSize);
+            var openingsArray = openings.ToDirectionsArray();
 
-            foreach (var direction in openings.ToDirectionsArray())
+            // carve the walls first, so that 
+            foreach (var direction in openingsArray)
                 CarveCorridors(direction, template, true);
 
-            foreach (var direction in openings.ToDirectionsArray())
+            // we can do another pass with the floors later
+            foreach (var direction in openingsArray)
                 CarveCorridors(direction, template);
 
             MakeOpenings(template, openings);
