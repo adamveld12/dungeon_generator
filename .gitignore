@@ -1,3 +1,4 @@
+*.ide/
 bin/
 obj/
 *.suo
