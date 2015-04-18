@@ -18,19 +18,22 @@ namespace Demo
             var width = map.Width;
             var height = map.Height;
 
+            var winWidth = Math.Min(width + 7, 132);
+            var winHeight = Math.Min(height + 17, 132);
+
             try
             {
-                var winWidth = Math.Min(width + 7, 132);
-                var winHeight = Math.Min(height + 17, 132);
 
                 Console.SetWindowSize(winWidth, winHeight);
+                Console.SetBufferSize(width + 7, height + 17);
             }
             catch
             {
                 Debug.Fail("Set console font size to a mono spaced font.");
+                Console.SetBufferSize(width + 7, height + 17);
+                Console.SetWindowSize(winWidth, winHeight);
             }
 
-            Console.SetBufferSize(width + 7, height + 17);
 
             for (var x = 0; x < width; x++)
             {
