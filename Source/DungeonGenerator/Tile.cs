@@ -34,6 +34,6 @@ namespace Dungeon.Generator
         Exit = 0x02,
         Loot = 0x04,
         MonsterSpawn = 0x08,
-        Doors = 0x0F
+        Doors = 0x10
     }
 }

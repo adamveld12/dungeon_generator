@@ -5,7 +5,7 @@
         public static ITileMap Generate(MapSize size, GeneratorParams parameters)
         {
             var map = new TileMap((int) size, (int) size);
-            new DungeonGenerator(parameters).Generate(map);
+            new CellBasedGenerator(parameters).Generate(map);
             return map;
         }
 
@@ -16,7 +16,7 @@
             var parameters = GeneratorParams.Default;
             parameters.Seed = seed;
 
-            new DungeonGenerator(parameters).Generate(map);
+            new CellBasedGenerator(parameters).Generate(map);
 
             return map;
         }
@@ -28,7 +28,7 @@
             var parameters = GeneratorParams.Default;
             parameters.Seed = seed;
 
-            new DungeonGenerator(parameters).Generate(map);
+            new CellBasedGenerator(parameters).Generate(map);
 
             return map;
         }

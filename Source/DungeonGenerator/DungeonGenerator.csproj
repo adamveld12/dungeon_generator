@@ -61,7 +61,7 @@
     <Compile Include="CellHelpers.cs" />
     <Compile Include="CellType.cs" />
     <Compile Include="Direction.cs" />
-    <Compile Include="DungeonGenerator.cs" />
+    <Compile Include="CellBasedGenerator.cs" />
     <Compile Include="Generator.cs" />
     <Compile Include="GeneratorParams.cs" />
     <Compile Include="ITileMap.cs" />
