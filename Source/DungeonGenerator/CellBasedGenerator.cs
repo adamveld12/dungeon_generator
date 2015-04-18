@@ -29,7 +29,7 @@ namespace Dungeon.Generator
             _cells[startLoc.X, startLoc.Y] = Cell.FourWayRoom();
 
             if(_params.Exits)
-                _cells[startLoc.X, startLoc.Y].Attributes = TileAttributes.Entry;
+                _cells[startLoc.X, startLoc.Y].Attributes = AttributeType.Entry;
 
             var unprocessed = new Queue<Point>();
             unprocessed.Enqueue(startLoc);
@@ -65,7 +65,7 @@ namespace Dungeon.Generator
                         var spawnExit = _random.Chance(chance);
                         if (cell.Type != CellType.None && ((x <= w*0.15) || (x >= w*0.65)) && spawnExit)
                         {
-                            cell.Attributes = TileAttributes.Exit;
+                            cell.Attributes = AttributeType.Exit;
                             secondExitPlaced = true;
                         }
                         else if (!spawnExit)
@@ -79,14 +79,14 @@ namespace Dungeon.Generator
 
         private Cell ApplyAttributes(Cell newCell)
         {
-            if (_random.Chance(_params.MonsterSpawns))
-                newCell.Attributes |= TileAttributes.MonsterSpawn;
+            if (_random.Chance(_params.MobSpawns) && (!_params.MobsInRoomsOnly || newCell.Type == CellType.Room))
+                newCell.Attributes |= AttributeType.MobSpawn;
 
             if (_random.Chance(_params.Loot) && newCell.Type == CellType.Room)
-                newCell.Attributes |= TileAttributes.Loot;
+                newCell.Attributes |= AttributeType.Loot;
 
             if (_random.Chance(_params.Doors))
-                newCell.Attributes |= TileAttributes.Doors;
+                newCell.Attributes |= AttributeType.Doors;
 
             return newCell;
         }
@@ -100,7 +100,7 @@ namespace Dungeon.Generator
                 {
                     Type = _random.Chance(_params.RoomChance) ? CellType.Room : CellType.Corridor,
                     Openings = FindValidConnections(direction, location),
-                    Attributes = TileAttributes.None,
+                    Attributes = AttributeType.None,
                 };
 
             return default(Cell);

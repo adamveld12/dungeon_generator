@@ -28,10 +28,6 @@ namespace Dungeon.Generator
             const int cs = CellBasedGenerator.CellSize;
 
             Iterate(template, ( loc, tile) => map[x*cs + loc.X, y*cs + loc.Y] = tile);
-
-//            for (var xPos = 0; xPos < template.GetLength(0); xPos++)
-//                for (var yPos = 0; yPos < template.GetLength(1); yPos++)
-//                    map[x * cs + xPos, y * cs + yPos] = template[xPos, yPos];
         }
 
         private static void ApplyAttributes(Cell cell, Tile[,] template)
@@ -39,19 +35,19 @@ namespace Dungeon.Generator
             int w = template.GetLength(0), h = template.GetLength(1);
             var attr = cell.Attributes;
 
-            if ((attr & TileAttributes.Exit) == TileAttributes.Exit)
-                template[w/2, h/2].Attributes = TileAttributes.Exit;
-            else if ((attr & TileAttributes.Entry) == TileAttributes.Entry)
-                template[w/2, h/2].Attributes = TileAttributes.Entry;
+            if ((attr & AttributeType.Exit) == AttributeType.Exit)
+                template[w/2, h/2].Attributes = AttributeType.Exit;
+            else if ((attr & AttributeType.Entry) == AttributeType.Entry)
+                template[w/2, h/2].Attributes = AttributeType.Entry;
 
             // apply monster spawns in center
-            if ((attr & TileAttributes.MonsterSpawn) == TileAttributes.MonsterSpawn)
+            if ((attr & AttributeType.MobSpawn) == AttributeType.MobSpawn)
             {
                 Iterate(template, (point, tile) => 
                 {
-                   if (tile.Material == TileMaterial.Floor && (point.X > w/2.0f && point.Y < h/2.0f)) 
+                   if (tile.MaterialType == MaterialType.Floor && (point.X > w/2.0f && point.Y < h/2.0f)) 
                    {
-                        template[point.X, point.Y].Attributes |= TileAttributes.MonsterSpawn;
+                        template[point.X, point.Y].Attributes |= AttributeType.MobSpawn;
                        return false;
                    }
                     return true;
@@ -59,16 +55,16 @@ namespace Dungeon.Generator
             }
 
             // apply loot chests in corners of rooms
-            if ((attr & TileAttributes.Loot) == TileAttributes.Loot )
+            if ((attr & AttributeType.Loot) == AttributeType.Loot )
             {
                 if (cell.Type == CellType.Room)
                 {
-                    template[1, 1].Attributes |= TileAttributes.Loot;
-                    template[w - 2, h - 2].Attributes |= TileAttributes.Loot;
+                    template[1, 1].Attributes |= AttributeType.Loot;
+                    template[w - 2, h - 2].Attributes |= AttributeType.Loot;
                 }
                 else if (cell.Type == CellType.Corridor)
                 {
-                    template[w/2, h/2].Attributes |= TileAttributes.Loot;
+                    template[w/2, h/2].Attributes |= AttributeType.Loot;
                 }
             }
         }

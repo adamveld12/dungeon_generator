@@ -14,7 +14,7 @@ namespace Dungeon.Generator
         public CellType Type;
 
         [FieldOffset(2)]
-        public TileAttributes Attributes;
+        public AttributeType Attributes;
 
         public static Cell FourWayRoom()
         {
