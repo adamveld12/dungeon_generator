@@ -7,9 +7,9 @@ namespace Dungeon.Generator
     {
         public static CellType[] CellTypes = Enum.GetValues(typeof (CellType)).Cast<CellType>().Where(x => x != CellType.None).ToArray();
 
-        public static void Fill(this Cell cell, int x, int y, ITileMap map)
+        public static void Fill(this Cell cell, int x, int y, ITileMap map, GeneratorParams parameters)
         {
-            TileType[,] template;
+            Tile[,] template;
 
             switch (cell.Type)
             {
@@ -19,24 +19,71 @@ namespace Dungeon.Generator
                 case CellType.Corridor:
                     template = FillCorridor(cell.Openings);
                     break;
-                default: return;
+                default: 
+                    return;
             }
 
-            const int cellSize = DungeonGenerator.CellSize;
+            ApplyAttributes(cell, template);
 
-            for (var xPos = 0; xPos < template.GetLength(0); xPos++)
-                for (var yPos = 0; yPos < template.GetLength(1); yPos++)
-                    map[x * cellSize + xPos, y * cellSize + yPos] = template[xPos, yPos];
+            const int cs = CellBasedGenerator.CellSize;
+
+            Iterate(template, ( loc, tile) => map[x*cs + loc.X, y*cs + loc.Y] = tile);
+
+//            for (var xPos = 0; xPos < template.GetLength(0); xPos++)
+//                for (var yPos = 0; yPos < template.GetLength(1); yPos++)
+//                    map[x * cs + xPos, y * cs + yPos] = template[xPos, yPos];
         }
 
-        private static TileType[,] FillCorridor(Direction openings)
+        private static void ApplyAttributes(Cell cell, Tile[,] template)
         {
-            var template = MakeTemplate(DungeonGenerator.CellSize);
+            int w = template.GetLength(0), h = template.GetLength(1);
+            var attr = cell.Attributes;
 
-            foreach (var direction in openings.ToDirectionsArray())
+            if ((attr & TileAttributes.Exit) == TileAttributes.Exit)
+                template[w/2, h/2].Attributes = TileAttributes.Exit;
+            else if ((attr & TileAttributes.Entry) == TileAttributes.Entry)
+                template[w/2, h/2].Attributes = TileAttributes.Entry;
+
+            // apply monster spawns in center
+            if ((attr & TileAttributes.MonsterSpawn) == TileAttributes.MonsterSpawn)
+            {
+                Iterate(template, (point, tile) => 
+                {
+                   if (tile.Material == TileMaterial.Floor && (point.X > w/2.0f && point.Y < h/2.0f)) 
+                   {
+                        template[point.X, point.Y].Attributes |= TileAttributes.MonsterSpawn;
+                       return false;
+                   }
+                    return true;
+                });
+            }
+
+            // apply loot chests in corners of rooms
+            if ((attr & TileAttributes.Loot) == TileAttributes.Loot )
+            {
+                if (cell.Type == CellType.Room)
+                {
+                    template[1, 1].Attributes |= TileAttributes.Loot;
+                    template[w - 2, h - 2].Attributes |= TileAttributes.Loot;
+                }
+                else if (cell.Type == CellType.Corridor)
+                {
+                    template[w/2, h/2].Attributes |= TileAttributes.Loot;
+                }
+            }
+        }
+
+        private static Tile[,] FillCorridor(Direction openings)
+        {
+            var template = MakeTemplate(CellBasedGenerator.CellSize);
+            var openingsArray = openings.ToDirectionsArray();
+
+            // carve the walls first, so that 
+            foreach (var direction in openingsArray)
                 CarveCorridors(direction, template, true);
 
-            foreach (var direction in openings.ToDirectionsArray())
+            // we can do another pass with the floors later
+            foreach (var direction in openingsArray)
                 CarveCorridors(direction, template);
 
             MakeOpenings(template, openings);
@@ -44,9 +91,8 @@ namespace Dungeon.Generator
             return template;
         }
 
-        private static void CarveCorridors(Direction direction, TileType[,] template, bool fillWalls = false)
+        private static void CarveCorridors(Direction direction, Tile[,] template, bool fillWalls = false)
         {
-            // TODO dry this up
             if (direction == Direction.West)
             {
                 var endX = fillWalls ? template.GetLength(0)/2 + 1 : template.GetLength(0)/2;
@@ -54,12 +100,12 @@ namespace Dungeon.Generator
                 {
                     if (fillWalls)
                     {
-                        template[x, DungeonGenerator.CellSize/2 - 1].Type = TileType.Wall;
-                        template[x, DungeonGenerator.CellSize/2 + 1].Type = TileType.Wall;
-                        template[x, DungeonGenerator.CellSize/2].Type = TileType.Wall;
+                        template[x, CellBasedGenerator.CellSize/2 - 1] = Tile.Wall;
+                        template[x, CellBasedGenerator.CellSize/2 + 1] = Tile.Wall;
+                        template[x, CellBasedGenerator.CellSize/2] = Tile.Wall;
                     }
                     else
-                        template[x, DungeonGenerator.CellSize/2].Type = TileType.Floor;
+                        template[x, CellBasedGenerator.CellSize/2] = Tile.Floor;
                 }
             }
             else if (direction == Direction.East)
@@ -69,12 +115,12 @@ namespace Dungeon.Generator
                 {
                     if (fillWalls)
                     {
-                        template[x, DungeonGenerator.CellSize/2 - 1].Type = TileType.Wall;
-                        template[x, DungeonGenerator.CellSize/2 + 1].Type = TileType.Wall;
-                        template[x, DungeonGenerator.CellSize/2].Type = TileType.Wall;
+                        template[x, CellBasedGenerator.CellSize/2 - 1] = Tile.Wall;
+                        template[x, CellBasedGenerator.CellSize/2 + 1] = Tile.Wall;
+                        template[x, CellBasedGenerator.CellSize/2] = Tile.Wall;
                     }
                     else
-                        template[x, DungeonGenerator.CellSize/2].Type = TileType.Floor;
+                        template[x, CellBasedGenerator.CellSize/2] = Tile.Floor;
                 }
             }
             else if (direction == Direction.North)
@@ -84,12 +130,12 @@ namespace Dungeon.Generator
                 {
                     if (fillWalls)
                     {
-                        template[DungeonGenerator.CellSize/2 - 1, y].Type = TileType.Wall;
-                        template[DungeonGenerator.CellSize/2 + 1, y].Type = TileType.Wall;
-                        template[DungeonGenerator.CellSize/2, y].Type = TileType.Wall;
+                        template[CellBasedGenerator.CellSize/2 - 1, y] = Tile.Wall;
+                        template[CellBasedGenerator.CellSize/2 + 1, y] = Tile.Wall;
+                        template[CellBasedGenerator.CellSize/2, y] = Tile.Wall;
                     }
                     else
-                        template[DungeonGenerator.CellSize/2, y].Type = TileType.Floor;
+                        template[CellBasedGenerator.CellSize/2, y] = Tile.Floor;
                 }
             }
             else if (direction == Direction.South)
@@ -99,30 +145,30 @@ namespace Dungeon.Generator
                 {
                     if (fillWalls)
                     {
-                        template[DungeonGenerator.CellSize/2 - 1, y].Type = TileType.Wall;
-                        template[DungeonGenerator.CellSize/2 + 1, y].Type = TileType.Wall;
-                        template[DungeonGenerator.CellSize/2, y].Type = TileType.Wall;
+                        template[CellBasedGenerator.CellSize/2 - 1, y] = Tile.Wall;
+                        template[CellBasedGenerator.CellSize/2 + 1, y] = Tile.Wall;
+                        template[CellBasedGenerator.CellSize/2, y] = Tile.Wall;
                     }
                     else
-                        template[DungeonGenerator.CellSize/2, y].Type = TileType.Floor;
+                        template[CellBasedGenerator.CellSize/2, y] = Tile.Floor;
                 }
             }
         }
 
-        private static TileType[,] MakeTemplate(int size, byte tileType = TileType.Air)
+        private static Tile[,] MakeTemplate(int size, Tile tileType = default(Tile))
         {
-            var template = new TileType[size, size];
+            var template = new Tile[size, size];
 
-            for (int x = 0; x < template.GetLength(0); x++)
-                for (int y = 0; y < template.GetLength(1); y++)
-                    template[x, y].Type = tileType;
+            for (var x = 0; x < template.GetLength(0); x++)
+                for (var y = 0; y < template.GetLength(1); y++)
+                    template[x, y] = tileType;
 
             return template;
         }
 
-        private static void MakeOpenings(TileType[,] template, Direction openings)
+        private static void MakeOpenings(Tile[,] template, Direction openings)
         {
-            var size = DungeonGenerator.CellSize - 1;
+            const int size = CellBasedGenerator.CellSize - 1;
             foreach (var opening in openings.ToDirectionsArray())
             {
                 int x = 0, y = 0;
@@ -147,25 +193,48 @@ namespace Dungeon.Generator
                         throw new ArgumentOutOfRangeException("openings");
                 }
 
-                template[x,y].Type = TileType.Floor;
+                template[x,y] = Tile.Floor;
             }
-            
         }
 
-        private static TileType[,] FillRoom(Direction openings)
+        private static Tile[,] FillRoom(Direction openings)
         {
-            var size = DungeonGenerator.CellSize;
-            var template = MakeTemplate(size, TileType.Wall);
+            const int size = CellBasedGenerator.CellSize;
+            var template = MakeTemplate(size, Tile.Wall);
 
             for (var x = 1; x < template.GetLength(0) - 1; x++)
                 for (var y = 1; y < template.GetLength(1) - 1; y++)
-                    template[x, y].Type = TileType.Floor;
+                    template[x, y] = Tile.Floor;
 
             MakeOpenings(template, openings);
 
             return template;
 
 
+        }
+
+
+
+        private static void Iterate(Tile[,] template, Func<Point, Tile, bool> callback)
+        {
+            for (var xPos = 0; xPos < template.GetLength(0); xPos++)
+                for (var yPos = 0; yPos < template.GetLength(1); yPos++)
+                    if (!callback(new Point {X = xPos, Y = yPos}, template[xPos, yPos]))
+                        return;
+        }
+
+        private static void Iterate(Tile[,] template, Func<Point, Tile, Tile> callback)
+        {
+            for (var xPos = 0; xPos < template.GetLength(0); xPos++)
+                for (var yPos = 0; yPos < template.GetLength(1); yPos++)
+                    template[xPos, yPos] = callback(new Point{X = xPos, Y = yPos}, template[xPos, yPos]);
+        }
+
+        private static void Iterate(Tile[,] template, Action<Point, Tile> callback)
+        {
+            for (var xPos = 0; xPos < template.GetLength(0); xPos++)
+                for (var yPos = 0; yPos < template.GetLength(1); yPos++)
+                    callback(new Point{X = xPos, Y = yPos}, template[xPos, yPos]);
         }
     }
 }

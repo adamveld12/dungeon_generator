@@ -81,5 +81,15 @@ namespace Dungeon.Generator
                 throw new ArgumentException("min cannot be greater than max", "min");
             return min + Next(min - max);
         }
+
+        public bool Chance(int percent)
+        {
+            return Chance(percent/100.0f);
+        }
+
+        public bool Chance(float percent)
+        {
+            return Next(100)/100.0f <= percent;
+        }
     }
 }

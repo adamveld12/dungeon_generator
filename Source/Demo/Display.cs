@@ -41,27 +41,55 @@ namespace Demo
                     Console.ForegroundColor = ConsoleColor.White;
                     char output;
 
-                    switch (tile.Type)
+                    switch (tile.Material)
                     {
-                        case TileType.Air:
+                        case TileMaterial.Air:
                             output = ' ';
                             break;
-                        case TileType.Wall:
+                        case TileMaterial.Wall:
                             Console.ForegroundColor = ConsoleColor.White;
                             output = '\u256C';
                             break;
-                        case TileType.Floor:
+                        case TileMaterial.Floor:
                             Console.ForegroundColor = ConsoleColor.Gray;
                             output = '\u2591';
                             break;
-                        case TileType.BreakableWall:
+                        case TileMaterial.BreakableWall:
                             Console.ForegroundColor = ConsoleColor.Green;
-                            output = '@';
+                            output = '#';
                             break;
+
                         default:
-                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.ForegroundColor = ConsoleColor.Green;
                             output = '?';
                             break;
+                    }
+
+                    if (tile.Attributes.HasFlag(TileAttributes.Entry))
+                    {
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        output = 'E';
+                    }
+                    else if (tile.Attributes.HasFlag(TileAttributes.Exit))
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        output = 'E';
+                    }
+                    else if (tile.Attributes.HasFlag(TileAttributes.Loot))
+                    {
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        output = 'L';
+                    }
+                    else if (tile.Attributes.HasFlag(TileAttributes.MonsterSpawn))
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                        output = 'M';
+                        
+                    }
+                    else if (tile.Attributes.HasFlag(TileAttributes.Doors))
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkBlue;
+                        output = 'D';
                     }
 
                     Console.Write(output);
